@@ -1,4 +1,4 @@
-from paravision.utils import csvWriter, module_parser, read_files
+from paravision.utils import csvWriter, parse_cmdline_args, read_files
 from paravision.integrate import integrate
 
 from paraview.simple import *
@@ -11,6 +11,7 @@ def chromatogram(reader, args):
             - Volume : Given 3D column volume -> Extracted top surface
             - Area   : Given 2D Area
     """
+
     args.scalars = args.scalars or reader.PointArrayStatus
     scalars = args['scalars']
     timeArray = reader.TimestepValues
@@ -37,6 +38,6 @@ def chromatogram(reader, args):
             csvWriter("".join([scalar, '.csv']), reader.TimestepValues, np.array(integratedData).T[list(scalars).index(scalar)])
 
 if __name__=="__main__":
-    args = module_parser()
+    args = parse_cmdline_args()
     reader = read_files(args)
     chromatogram(reader, args)

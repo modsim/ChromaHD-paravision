@@ -2,24 +2,21 @@
 
 import sys
 
-from paravision.utils import main_parser, read_files
+from paravision.utils import parse_cmdline_args, read_files
 
 import importlib
 import subprocess
 
 
-def run_command(module, args, nproc=None):
-    if nproc:
+def run_command(module:str, args:list, nproc:int=1):
+    if nproc > 1:
         command_pre = [ 'mpiexec', '-np', nproc, 'pvbatch' ]
     else:
         command_pre = [ 'pvpython' ]
 
     command = []
     command.extend([importlib.util.find_spec(module).origin])
-
-    for key in args:
-        if args[key]:
-            command.extend(['--' + key, args[key]])
+    command.extend(args)
 
     command = command_pre + command
 
@@ -29,7 +26,9 @@ def run_command(module, args, nproc=None):
 
 def main():
 
-    args = main_parser()
+    args = parse_cmdline_args()
+
+    argv_sub = sys.argv[1:]
 
     # timeKeeper = GetTimeKeeper()
     #
@@ -47,23 +46,25 @@ def main():
     # integratedData = []
 
     if args.chromatogram:
-        run_command("paravision.chromatogram", args)
+        run_command("paravision.chromatogram", argv_sub)
     elif args.shell_chromatograms:
-        run_command("paravision.shell_chromatograms", args)
+        run_command("paravision.shell_chromatograms", argv_sub)
     elif args.grm_2d:
-        run_command("paravision.grm_2d", args)
+        run_command("paravision.grm_2d", argv_sub)
     elif args.radial_shell_integrate:
-        run_command("paravision.radial_shell_integrate", args)
+        run_command("paravision.radial_shell_integrate", argv_sub)
     elif args.column_screenshot:
-        run_command("paravision.column_screenshot", args)
+        run_command("paravision.column_screenshot", argv_sub)
     elif args.volume_integral:
-        run_command("paravision.volume_integral", args)
+        run_command("paravision.volume_integral", argv_sub)
     elif args.bead_loading:
-        run_command("paravision.bead_loading", args)
+        run_command("paravision.bead_loading", argv_sub)
     elif args.mass_flux:
-        run_command("paravision.mass_flux", args)
+        run_command("paravision.mass_flux", argv_sub)
     elif args.animate:
-        run_command("paravision.animate", args)
+        run_command("paravision.animate", argv_sub)
+    elif args.screenshot:
+        run_command("paravision.screenshot", argv_sub)
 
     # elif args.shell_chromatograms:
     #     from paravision import shell_chromatograms

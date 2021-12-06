@@ -150,21 +150,7 @@ def read_files(args):
     
     return reader
 
-def main_parser():
-    """ Parser for the main paravision function """
-    import argparse 
-    from addict import Dict
-
-    ap = argparse.ArgumentParser()
-
-    ap.add_argument("-cg", "--chromatogram", choices=['Volume', 'Area'], help="Chromatogram: Integrate (0,0,1) surface of given volume or Integrate given area")
-    ap.add_argument("-scg", "--shell-chromatograms", type=int, help="Calculate chromatograms in n shell sections of given SURFACE")
-    ap.add_argument("--grm-2d", nargs=2, type=int, help="Split into axial and radial sections and integrate scalars for fitting with 2D GRM. args: <ncol> <nrad>")
-
-    args = Dict(vars(ap.parse_args()))
-    return args
-
-def module_parser():
+def parse_cmdline_args():
     """
         Parser for individual module commands
     """
@@ -176,6 +162,7 @@ def module_parser():
     ap.add_argument("-cg", "--chromatogram", choices=['Volume', 'Area'], help="Chromatogram: Integrate (0,0,1) surface of given volume or Integrate given area")
     ap.add_argument("-scg", "--shell-chromatograms", type=int, help="Calculate chromatograms in n shell sections of given SURFACE")
     ap.add_argument("--grm-2d", nargs=2, type=int, help="Split into axial and radial sections and integrate scalars for fitting with 2D GRM. args: <ncol> <nrad>")
+    ap.add_argument("--screenshot", action='store_true', help="Screenshot the given object")
 
     ap.add_argument("--integrate", choices=['Volume', 'Area', 'None'], help="Integrate and average the given Volume/Area")
     ap.add_argument("--project", nargs=4, default=['clip', 'Plane', 0.5, "x"], help="Projection. <clip|slice> <Plane|Cylinder..> <origin> <x|y|z>" )
@@ -195,7 +182,6 @@ def module_parser():
     ap.add_argument("FILES", nargs='*', help="files..")
 
     args = Dict(vars(ap.parse_args()))
-
 
     return args
 
