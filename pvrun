@@ -53,8 +53,8 @@ def main():
         run_command("paravision.grm2d", argv_sub, args.nproc)
     elif args.radial_shell_integrate:
         run_command("paravision.radial_shell_integrate", argv_sub, args.nproc)
-    elif args.column_screenshot:
-        run_command("paravision.column_screenshot", argv_sub, args.nproc)
+    elif args.column_snapshot:
+        run_command("paravision.column_snapshot", argv_sub, args.nproc)
     elif args.volume_integral:
         run_command("paravision.volume_integral", argv_sub, args.nproc)
     elif args.bead_loading:
