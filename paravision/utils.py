@@ -174,6 +174,7 @@ def parse_cmdline_args():
     ap.add_argument("--column-snapshot", action='store_true', help="Snapshot the column with a semi-transparent container")
     ap.add_argument("--volume-integral", action='store_true', help="Calculate AVERAGES using the volume integral. EXPERIMENTAL. TO BE REPLACED")
     ap.add_argument("--mass-flux", type=int, help="Calculate mass flux (or volume flux) at n slices")
+    ap.add_argument("--animate", action='store_true', help="Create animation as series of pngs")
 
     ap.add_argument("-np", "--nproc", type=int, default=1, help="Screenshot the given object")
 
