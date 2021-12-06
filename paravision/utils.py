@@ -170,6 +170,7 @@ def parse_cmdline_args():
     ap.add_argument("--grm2d", nargs=2, type=int, help="Split into axial and radial sections and integrate scalars for fitting with 2D GRM. args: <ncol> <nrad>")
     ap.add_argument("--screenshot", action='store_true', help="Screenshot the given object")
     ap.add_argument("--bead-loading", action='store_true', help="Screenshot the given object")
+    ap.add_argument("--radial-shell-integrate", help="Divide object radially and integrate")
     ap.add_argument("-np", "--nproc", type=int, default=1, help="Screenshot the given object")
 
     ap.add_argument("--integrate", choices=['Volume', 'Area', 'None'], help="Integrate and average the given Volume/Area")
