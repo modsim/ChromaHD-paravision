@@ -49,8 +49,8 @@ def main():
         run_command("paravision.chromatogram", argv_sub, args.nproc)
     elif args.shell_chromatograms:
         run_command("paravision.shell_chromatograms", argv_sub, args.nproc)
-    elif args.grm_2d:
-        run_command("paravision.grm_2d", argv_sub, args.nproc)
+    elif args.grm2d:
+        run_command("paravision.grm2d", argv_sub, args.nproc)
     elif args.radial_shell_integrate:
         run_command("paravision.radial_shell_integrate", argv_sub, args.nproc)
     elif args.column_screenshot:

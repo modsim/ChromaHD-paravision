@@ -1,4 +1,5 @@
 from paraview.simple import *
+import struct
 
 def csvWriter(filename, x, y):
     import csv
@@ -161,7 +162,7 @@ def parse_cmdline_args():
 
     ap.add_argument("-cg", "--chromatogram", choices=['Volume', 'Area'], help="Chromatogram: Integrate (0,0,1) surface of given volume or Integrate given area")
     ap.add_argument("-scg", "--shell-chromatograms", type=int, help="Calculate chromatograms in n shell sections of given SURFACE")
-    ap.add_argument("--grm-2d", nargs=2, type=int, help="Split into axial and radial sections and integrate scalars for fitting with 2D GRM. args: <ncol> <nrad>")
+    ap.add_argument("--grm2d", nargs=2, type=int, help="Split into axial and radial sections and integrate scalars for fitting with 2D GRM. args: <ncol> <nrad>")
     ap.add_argument("--screenshot", action='store_true', help="Screenshot the given object")
     ap.add_argument("-np", "--nproc", type=int, default=1, help="Screenshot the given object")
 
