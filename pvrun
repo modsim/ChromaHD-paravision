@@ -1,0 +1,89 @@
+import sys
+
+from paravision.utils import main_parser, read_files
+
+import importlib
+import subprocess
+
+
+def run_command(module, args, nproc=None):
+    command = [ sys.executable ]
+
+    command.extend([importlib.util.find_spec(module).origin])
+
+    for key in args:
+        if args[key]:
+            command.extend(['--' + key, args[key]])
+
+    if nproc:
+        command_pre = [ 'mpiexec', '-np', nproc ]
+        command = command_pre + command
+
+    print(command)
+    subprocess.run(command)
+
+
+def main():
+
+    args = main_parser()
+
+    # timeKeeper = GetTimeKeeper()
+    #
+    # timeArray = reader.TimestepValues
+    # nts = len(timeArray) or 1
+    #
+    # args.scalars = args.scalars or reader.PointArrayStatus
+    #
+    # scalars = args.scalars
+    # shellType = args.shelltype
+
+    # ## Specifically integrate to get the chromatogram output
+    # ## with either full volume input -> manually extract surfaces and chromatogram
+    # ## or surface input, that just needs to be integrated
+    # integratedData = []
+
+    if args.chromatogram:
+        run_command("paravision.chromatogram", args)
+    elif args.shell_chromatograms:
+        run_command("paravision.shell_chromatograms", args)
+    elif args.grm_2d:
+        run_command("paravision.grm_2d", args)
+    elif args.radial_shell_integrate:
+        run_command("paravision.radial_shell_integrate", args)
+    elif args.column_screenshot:
+        run_command("paravision.column_screenshot", args)
+    elif args.volume_integral:
+        run_command("paravision.volume_integral", args)
+    elif args.bead_loading:
+        run_command("paravision.bead_loading", args)
+    elif args.mass_flux:
+        run_command("paravision.mass_flux", args)
+    elif args.animate:
+        run_command("paravision.animate", args)
+
+    # elif args.shell_chromatograms:
+    #     from paravision import shell_chromatograms
+    #     shell_chromatograms(reader, args)
+    # elif args.integrate:
+    #     from paravision import integrate
+    #     integrated_over_time = integrate(reader, args.scalars, normalize=args.integrate, timeArray=timeArray)
+    #     print(integrated_over_time)
+    #     for scalar in scalars:
+    #         csvWriter("{s}.integrated.{n}.csv".format(s=scalar, n=args.integrate), timeArray, np.array(integrated_over_time).T[list(scalars).index(scalar)])
+    # elif args.pipeline:
+    #     ## NOTE: Pipeline operations below [EXPERIMENTAL]
+    #     ## The idea is to provide the sequence of operations on the commandline
+    #     ##  and execute it here
+    #     supported_operations = {
+    #         'project': project,
+    #         'screenshot': screenshot
+    #     }
+    #
+    #     object = reader
+    #     args.pipeline = args.pipeline or []
+    #
+    #     for operation in args.pipeline:
+    #         object = supported_operations[operation](object, args)
+
+if __name__ == "__main__":
+    main()
