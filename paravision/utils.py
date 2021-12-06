@@ -163,6 +163,7 @@ def parse_cmdline_args():
     ap.add_argument("-scg", "--shell-chromatograms", type=int, help="Calculate chromatograms in n shell sections of given SURFACE")
     ap.add_argument("--grm-2d", nargs=2, type=int, help="Split into axial and radial sections and integrate scalars for fitting with 2D GRM. args: <ncol> <nrad>")
     ap.add_argument("--screenshot", action='store_true', help="Screenshot the given object")
+    ap.add_argument("-np", "--nproc", type=int, default=1, help="Screenshot the given object")
 
     ap.add_argument("--integrate", choices=['Volume', 'Area', 'None'], help="Integrate and average the given Volume/Area")
     ap.add_argument("--project", nargs=4, default=['clip', 'Plane', 0.5, "x"], help="Projection. <clip|slice> <Plane|Cylinder..> <origin> <x|y|z>" )

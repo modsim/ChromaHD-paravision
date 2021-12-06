@@ -10,7 +10,7 @@ import subprocess
 
 def run_command(module:str, args:list, nproc:int=1):
     if nproc > 1:
-        command_pre = [ 'mpiexec', '-np', nproc, 'pvbatch' ]
+        command_pre = [ 'mpiexec', '-np', str(nproc), 'pvbatch' ]
     else:
         command_pre = [ 'pvpython' ]
 
@@ -46,35 +46,25 @@ def main():
     # integratedData = []
 
     if args.chromatogram:
-        run_command("paravision.chromatogram", argv_sub)
+        run_command("paravision.chromatogram", argv_sub, args.nproc)
     elif args.shell_chromatograms:
-        run_command("paravision.shell_chromatograms", argv_sub)
+        run_command("paravision.shell_chromatograms", argv_sub, args.nproc)
     elif args.grm_2d:
-        run_command("paravision.grm_2d", argv_sub)
+        run_command("paravision.grm_2d", argv_sub, args.nproc)
     elif args.radial_shell_integrate:
-        run_command("paravision.radial_shell_integrate", argv_sub)
+        run_command("paravision.radial_shell_integrate", argv_sub, args.nproc)
     elif args.column_screenshot:
-        run_command("paravision.column_screenshot", argv_sub)
+        run_command("paravision.column_screenshot", argv_sub, args.nproc)
     elif args.volume_integral:
-        run_command("paravision.volume_integral", argv_sub)
+        run_command("paravision.volume_integral", argv_sub, args.nproc)
     elif args.bead_loading:
-        run_command("paravision.bead_loading", argv_sub)
+        run_command("paravision.bead_loading", argv_sub, args.nproc)
     elif args.mass_flux:
-        run_command("paravision.mass_flux", argv_sub)
+        run_command("paravision.mass_flux", argv_sub, args.nproc)
     elif args.animate:
-        run_command("paravision.animate", argv_sub)
+        run_command("paravision.animate", argv_sub, args.nproc)
     elif args.screenshot:
-        run_command("paravision.screenshot", argv_sub)
-
-    # elif args.shell_chromatograms:
-    #     from paravision import shell_chromatograms
-    #     shell_chromatograms(reader, args)
-    # elif args.integrate:
-    #     from paravision import integrate
-    #     integrated_over_time = integrate(reader, args.scalars, normalize=args.integrate, timeArray=timeArray)
-    #     print(integrated_over_time)
-    #     for scalar in scalars:
-    #         csvWriter("{s}.integrated.{n}.csv".format(s=scalar, n=args.integrate), timeArray, np.array(integrated_over_time).T[list(scalars).index(scalar)])
+        run_command("paravision.screenshot", argv_sub, args.nproc)
     # elif args.pipeline:
     #     ## NOTE: Pipeline operations below [EXPERIMENTAL]
     #     ## The idea is to provide the sequence of operations on the commandline
