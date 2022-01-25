@@ -65,20 +65,23 @@ def main():
         run_command("paravision.animate", argv_sub, args.nproc)
     elif args.screenshot:
         run_command("paravision.screenshot", argv_sub, args.nproc)
-    # elif args.pipeline:
-    #     ## NOTE: Pipeline operations below [EXPERIMENTAL]
-    #     ## The idea is to provide the sequence of operations on the commandline
-    #     ##  and execute it here
-    #     supported_operations = {
-    #         'project': project,
-    #         'screenshot': screenshot
-    #     }
-    #
-    #     object = reader
-    #     args.pipeline = args.pipeline or []
-    #
-    #     for operation in args.pipeline:
-    #         object = supported_operations[operation](object, args)
+    elif args.pipeline:
+        ## NOTE: Pipeline operations below [EXPERIMENTAL]
+        ## The idea is to provide the sequence of operations on the commandline
+        ##  and execute it here
+        from paravision.project import project
+        from paravision.screenshot import screenshot
+        supported_operations = {
+            'project': project,
+            'screenshot': screenshot
+        }
+
+        reader = read_files(args)
+        object = reader
+        args.pipeline = args.pipeline or []
+
+        for operation in args.pipeline:
+            object = supported_operations[operation](object, args)
 
 if __name__ == "__main__":
     main()
