@@ -76,7 +76,7 @@ def main():
             'screenshot': screenshot
         }
 
-        reader = read_files(args)
+        reader = read_files(args['FILES'], filetype=args['filetype'])
         object = reader
         args.pipeline = args.pipeline or []
 

@@ -68,5 +68,5 @@ def animate(reader, args):
 
 if __name__=="__main__":
     args = parse_cmdline_args()
-    reader = read_files(args)
+    reader = read_files(args['FILES'], filetype=args['filetype'])
     animate(reader, args)

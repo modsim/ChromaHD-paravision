@@ -116,40 +116,37 @@ def get_cross_sections(reader, nSlice=1):
 
     return slices
 
-def read_files(args):
+def read_files(files, filetype='pvtu'):
     import os
 
-    if len(args['FILES']) == 0:
-        filetype = args['filetype']
-
+    if len(files) == 0:
         try:
-            args['FILES'] = sorted([ file for file in os.listdir(".") if file.endswith(filetype) ], key=lambda x: int(x.split('.')[0].split('_')[-1]))
+            files = sorted([ file for file in os.listdir(".") if file.endswith(filetype) ], key=lambda x: int(x.split('.')[0].split('_')[-1]))
         except:
             print("Not sorting files.")
-            args['FILES'] = [ file for file in os.listdir(".") if file.endswith(filetype) ]
+            files = [ file for file in os.listdir(".") if file.endswith(filetype) ]
 
-        if len(args['FILES']) == 0:
+        if len(files) == 0:
             print("Didn't find", filetype, "files in current folder.")
             sys.exit(-1)
     else:
-        fileExtensions = set([os.path.splitext(infile)[1] for infile in args['FILES']])
+        fileExtensions = set([os.path.splitext(infile)[1] for infile in files])
         if len(fileExtensions) > 1:
             print("Mixed File Formats Given!")
             sys.exit(-1)
         filetype = fileExtensions.pop().replace('.', '')
 
-    for key in args:
-        print(key + ': ', args[key])
+    print("Reading files: ", files)
 
     reader=None
     if filetype == 'xdmf':
-        reader = XDMFReader(FileNames=args['FILES'])
+        reader = XDMFReader(FileNames=files)
     elif filetype == 'vtu':
-        reader = XMLUnstructuredGridReader(FileName=args['FILES'])
+        reader = XMLUnstructuredGridReader(FileName=files)
     elif filetype == 'pvtu':
-        reader = XMLPartitionedUnstructuredGridReader(FileName=args['FILES'])
+        reader = XMLPartitionedUnstructuredGridReader(FileName=files)
     elif filetype == 'vtk':
-        reader = LegacyVTKReader(FileNames=args['FILES'])
+        reader = LegacyVTKReader(FileNames=files)
     else:
         print("Unsupported File Format!")
         raise(ValueError)
@@ -196,6 +193,9 @@ def parse_cmdline_args():
     ap.add_argument("FILES", nargs='*', help="files..")
 
     args = Dict(vars(ap.parse_args()))
+
+    for key in args:
+        print(key + ': ', args[key])
 
     return args
 

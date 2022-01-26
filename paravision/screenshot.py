@@ -5,9 +5,10 @@ from paravision.utils import parse_cmdline_args, read_files
 def screenshot(object, args, suffix=''):
     """ Screenshot a given object """
 
-    args.scalars = args.scalars or reader.PointArrayStatus
-    scalars = args['scalars']
-    timeArray = reader.TimestepValues
+    # args.scalars = args.scalars or reader.PointArrayStatus
+    args.scalars = args.scalars 
+    # scalars = args['scalars']
+    # timeArray = reader.TimestepValues
 
     view = GetActiveViewOrCreate('RenderView')
 
@@ -51,10 +52,10 @@ def screenshot(object, args, suffix=''):
         UpdateScalarBars()
 
         display.SetScalarBarVisibility(view, args['show_scalar_bar'])
-        SaveScreenshot('screenshot_' + scalar + '_' + suffix + args['FILES'][0].replace(args['filetype'], 'png'), view, ImageResolution=args['geometry'], TransparentBackground=1)
+        SaveScreenshot('screenshot_' + scalar + '_' + suffix + '.png', view, ImageResolution=args['geometry'], TransparentBackground=1)
         Hide(display, view)
 
 if __name__=="__main__":
     args = parse_cmdline_args()
-    reader = read_files(args)
+    reader = read_files(args['FILES'], filetype=args['filetype'])
     screenshot(reader, args)

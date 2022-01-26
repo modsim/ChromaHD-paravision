@@ -49,7 +49,7 @@ def bead_loading(reader, args):
 
         for index in range(nbeads):
 
-            print("Processing timestep: {timestep:3d} | bead: {index:5d} | file: {file}".format(timestep=timestep, index=index, file=files[timestep]), end="\r")
+            print("Processing timestep: {timestep:3d} | bead: {index:5d}".format(timestep=timestep, index=index), end="\r")
             threshold = Threshold(Input=connectivity)
             threshold.ThresholdRange = [index, index]
             thresholdDisplay = Show(threshold, view)
@@ -85,9 +85,9 @@ def bead_loading(reader, args):
 
         # TODO: this only works with one scalar currently, which is okay for now
         # appendToBin(dataArr[timestep,:,:], 'ts_' + str(timestep) + '.dat', "=d")
-        appendToBin(dataArr[timestep,:,:], files[timestep].replace('.pvtu', '.dat'), "=d")
+        appendToBin(dataArr[timestep,:,:], str( timestep ) + '.dat', "=d")
 
 if __name__=="__main__":
     args = parse_cmdline_args()
-    reader = read_files(args)
+    reader = read_files(args['FILES'], filetype=args['filetype'])
     bead_loading(reader, args)

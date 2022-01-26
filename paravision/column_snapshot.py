@@ -63,9 +63,9 @@ def column_snapshot(reader, args):
     view.ViewSize = geometry
 
     ## NOTE: Only works on the first file provided
-    SaveScreenshot(files[0].replace(filetype, 'png'), view, ImageResolution=geometry, TransparentBackground=1)
+    SaveScreenshot('column_snapshot.png', view, ImageResolution=geometry, TransparentBackground=1)
 
 if __name__=="__main__":
     args = parse_cmdline_args()
-    reader = read_files(args)
+    reader = read_files(args['FILES'], filetype=args['filetype'])
     column_snapshot(reader, args)
