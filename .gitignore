@@ -1,0 +1,12 @@
+*.csv
+*.png
+*.jpg
+*.jpeg
+*.cg
+*.dat
+rng.data
+rng.mien
+rng.mxyz
+rng.mrng
+rng.minf
+pyrightconfig.json
