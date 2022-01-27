@@ -162,7 +162,7 @@ def parse_cmdline_args():
 
     ap = argparse.ArgumentParser()
 
-    ap.add_argument("-cg", "--chromatogram", choices=['Volume', 'Area'], help="Chromatogram: Integrate (0,0,1) surface of given volume or Integrate given area")
+    ap.add_argument("-cg", "--chromatogram", choices=['Volume', 'Area', 'ResampleFlowOutlet'], help="Chromatogram: Integrate (0,0,1) surface of given volume or Integrate given area")
     ap.add_argument("-scg", "--shell-chromatograms", type=int, help="Calculate chromatograms in n shell sections of given SURFACE")
     ap.add_argument("--grm2d", nargs=2, type=int, help="Split into axial and radial sections and integrate scalars for fitting with 2D GRM. args: <ncol> <nrad>")
     ap.add_argument("--screenshot", action='store_true', help="Screenshot the given object")
@@ -189,6 +189,8 @@ def parse_cmdline_args():
     ap.add_argument("-v", "--view", nargs=2, default=["-x",  "+y"], help="Set view: target, viewup. Use +x, -z notation.")
     ap.add_argument("-g", "--geometry", nargs=2, type=int, default=[1750, 1300], help="Animation geometry size")
     ap.add_argument("-f", "--filetype", default='pvtu', choices=['xdmf', 'vtu', 'vtk', 'pvtu'], help="filetype: xdmf | vtu | vtk | pvtu")
+
+    ap.add_argument("--flow", help="Flowfield pvtu/vtu file")
 
     ap.add_argument("FILES", nargs='*', help="files..")
 
