@@ -5,6 +5,9 @@ from paravision.project import project
 
 def column_snapshot(reader, args):
 
+    for key in args:
+        print(key + ': ', args[key])
+
     geometry    = args['geometry']
     axisVisible = args['show_axis']
     zoom        = args['zoom']

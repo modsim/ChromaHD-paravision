@@ -4,6 +4,8 @@ from paravision.utils import parse_cmdline_args, read_files
 
 def screenshot(object, args, suffix=''):
     """ Screenshot a given object """
+    for key in args:
+        print(key + ': ', args[key])
 
     # args.scalars = args.scalars or reader.PointArrayStatus
     args.scalars = args.scalars 

@@ -9,6 +9,9 @@ import vtk.util.numpy_support as ns #type:ignore
 import numpy as np
 
 def bead_loading(reader, args):
+    for key in args:
+        print(key + ': ', args[key])
+
     scalars = args['scalars'] or reader.PointArrayStatus
     files = args['FILES']
 

@@ -7,6 +7,8 @@ from paravision.utils import parse_cmdline_args, read_files, csvWriter
 # TODO: Update this with --integrate?
 
 def volume_integral(reader, args):
+    for key in args:
+        print(key + ': ', args[key])
     scalars = args['scalars'] or reader.PointArrayStatus
 
     timeKeeper = GetTimeKeeper()

@@ -10,6 +10,9 @@ def GRM2D(object, args):
     ## Split into cylindrical columns
     ## Integrate
 
+    for key in args:
+        print(key + ': ', args[key])
+
     args.scalars = args.scalars or reader.PointArrayStatus
 
     view = GetActiveViewOrCreate('RenderView')

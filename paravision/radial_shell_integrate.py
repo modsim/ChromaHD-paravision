@@ -9,6 +9,8 @@ from paravision.integrate import integrate
 from math import sqrt
 
 def radial_shell_integrate(reader, args):
+    for key in args:
+        print(key + ': ', args[key])
 
     scalars = args['scalars'] or reader.PointArrayStatus
     nRegions = int(args['radial_shell_integrate'])

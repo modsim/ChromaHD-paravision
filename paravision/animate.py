@@ -4,6 +4,8 @@ from paravision.utils import parse_cmdline_args, read_files, view_handler
 from paravision.project import project
 
 def animate(reader, args):
+    for key in args:
+        print(key + ': ', args[key])
     projectionType = args['projectionType']
     colorVars = args['colorVars'] or reader.PointArrayStatus
     scalarBarVisible = not args['no_scalar_bar']

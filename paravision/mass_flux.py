@@ -8,6 +8,8 @@ from paravision.utils import parse_cmdline_args, read_files, csvWriter
 
 # TODO: Distinguish between mass flux and volume flux
 def mass_flux(reader, args):
+    for key in args:
+        print(key + ': ', args[key])
 
     colorVars = args['colorVars'] or reader.PointArrayStatus
     nSlice = args['mass_flux'] or 1

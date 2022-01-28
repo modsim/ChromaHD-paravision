@@ -8,6 +8,8 @@ import numpy as np
 
 def shell_chromatograms(reader, args):
     """ Generate shell chromatograms from a given 2D surface """
+    for key in args:
+        print(key + ': ', args[key])
 
     args.scalars = args.scalars or reader.PointArrayStatus
     scalars = args['scalars']

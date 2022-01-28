@@ -197,8 +197,5 @@ def parse_cmdline_args():
 
     args = Dict(vars(ap.parse_args()))
 
-    for key in args:
-        print(key + ': ', args[key])
-
     return args
 

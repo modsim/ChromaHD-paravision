@@ -10,6 +10,9 @@ def chromatogram(reader, args):
         Resampling is extremely slow.
     """
 
+    for key in args:
+        print(key + ': ', args[key])
+
     args.scalars = args.scalars or reader.PointArrayStatus
     timeArray = reader.TimestepValues
 
