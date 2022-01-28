@@ -11,8 +11,14 @@ import subprocess
 def run_command(module:str, args:list, nproc:int=1):
     if nproc > 1:
         command_pre = [ 'mpiexec', '-np', str(nproc), 'pvbatch' ]
+        pvbatch_path = subprocess.run(['which', 'pvbatch'], capture_output=True)
+        print(f"Using pvbatch from path: {pvbatch_path.stdout.decode('ascii').strip()}")
+        mpiexec_path = subprocess.run(['which', 'mpiexec'], capture_output=True)
+        print(f"Using mpiexec from path: {mpiexec_path.stdout.decode('ascii').strip()}")
     else:
         command_pre = [ 'pvpython' ]
+        pvpython_path = subprocess.run(['which', 'pvpython'], capture_output=True)
+        print(f"Using pvpython from path: {pvpython_path.stdout.decode('ascii').strip()}")
 
     command = []
     command.extend([importlib.util.find_spec(module).origin])
@@ -29,6 +35,7 @@ def main():
     args = parse_cmdline_args()
 
     argv_sub = sys.argv[1:]
+
 
     # timeKeeper = GetTimeKeeper()
     #
