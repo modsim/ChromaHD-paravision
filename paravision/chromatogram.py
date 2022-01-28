@@ -3,23 +3,14 @@ from paravision.integrate import integrate
 
 from paraview.simple import *
 
-import numpy as np
-
-from vtkmodules.numpy_interface import dataset_adapter as dsa
-import vtk.util.numpy_support as ns #type:ignore
-
 def chromatogram(reader, args):
     """
-        Calculate chromatogram from 
-            - Volume : Given 3D column volume -> Extracted top surface
-            - Area   : Given 2D Area
-            - ResampleFlowOutlet: Given 2D Area
-
-        REQUIRES flowfield data.
+        Calculate chromatogram from given 2D concentration field and flowfield
+        Resampling is necessary when using flowfield that wasn't generated from the exact same mesh.
+        Resampling is extremely slow.
     """
 
     args.scalars = args.scalars or reader.PointArrayStatus
-    scalars = args['scalars']
     timeArray = reader.TimestepValues
 
     if not args.flow:
@@ -27,46 +18,134 @@ def chromatogram(reader, args):
     else:
         flow = read_files([args['flow']], filetype=args['filetype'])
 
+    if args.resample_flow: 
+        # NOTE: Resampling is only required when the flowfield information is taken from the FLOW mesh instead of the MASS mesh mapping of the flowfield.
+        print("Resampling the flowfield...")
+        flow = ResampleWithDataset(registrationName='resampled_flow', SourceDataArrays=flow, DestinationMesh=reader)
+        flow.CellLocator = 'Static Cell Locator'
+
     integrated_flowrate = integrate(flow, ['scalar_2'], normalize=None, timeArray=[])
     print("Flowrate:", integrated_flowrate)
 
-    if args['chromatogram'] == 'Volume':
-
-        GetActiveViewOrCreate('RenderView')
-
-        surfaces = ExtractSurface(Input=reader)
-        surfaceNormals = GenerateSurfaceNormals(Input=surfaces)
-
-        threshold = Threshold(Input=surfaceNormals)
-        threshold.ThresholdRange = [1.0, 1.0]
-        threshold.Scalars = ['POINTS', 'Normals_Z']
-
-        integratedData = integrate(threshold, scalars, normalize='Area', timeArray=timeArray)
-
-        for scalar in scalars:
-            csvWriter("".join([scalar, '.csv']), timeArray or list(range(len(integratedData))), np.array(integratedData).T[list(scalars).index(scalar)])
-
-    elif args['chromatogram'] == 'Area':
-        integratedData = integrate(reader, scalars, normalize='Area', timeArray=reader.TimestepValues)
-
-        for scalar in scalars:
-            csvWriter("".join([scalar, '.csv']), reader.TimestepValues, np.array(integratedData).T[list(scalars).index(scalar)])
-
-    elif args['chromatogram'] == 'ResampleFlowOutlet':
+    if args['chromatogram'] == 'full':
         # NOTE: Assumes input is 2D output of extractRNG applied on the outlet
-        # Resampling is required for it to work currently. Possibly extractRNG doing something weird.
-
-        resampled_flow = ResampleWithDataset(registrationName='resampled_flow', SourceDataArrays=flow, DestinationMesh=reader)
-        resampled_flow.CellLocator = 'Static Cell Locator'
-
         # conc * velocity_z
-        cu = PythonCalculator(Input=[reader, resampled_flow])
+        cu = PythonCalculator(Input=[reader, flow])
         cu.Expression = "inputs[0].PointData['scalar_0'] * inputs[1].PointData['scalar_2']"
 
         chromatogram = integrate(cu, ['result'], normalize=None, timeArray=reader.TimestepValues)
         chromatogram = [ x[0]/integrated_flowrate[0][0] for x in chromatogram ]
 
-        csvWriter('chromatogram', reader.TimestepValues, chromatogram)
+        csvWriter('chromatogram.csv', reader.TimestepValues, chromatogram)
+
+    elif args.chromatogram == 'shells': 
+        nRegions = args.nrad
+        shellType = args.shelltype
+
+        timeKeeper = GetTimeKeeper()
+        timeArray = reader.TimestepValues
+        nts = len(timeArray) or 1
+
+        # conc * velocity_z
+        cu = PythonCalculator(Input=[reader, flow])
+        cu.Expression = "inputs[0].PointData['scalar_0'] * inputs[1].PointData['scalar_2']"
+        
+        view = GetActiveViewOrCreate('RenderView')
+        ## Calc bounding box. Requires show
+        display = Show(cu, view)
+        (xmin,xmax,ymin,ymax,zmin,zmax) = GetActiveSource().GetDataInformation().GetBounds()
+        Hide(cu, view)
+
+        nShells = nRegions + 1 #Including r = 0
+        rShells = []
+
+        R = (xmax - xmin + ymax - ymin)/4
+        print("R:", R)
+
+        if shellType == 'EQUIVOLUME':
+            for n in range(nShells):
+                rShells.append(R * sqrt(n/nRegions))
+        elif shellType == 'EQUIDISTANT':
+            for n in range(nShells):
+                rShells.append(R * (n/nRegions))
+
+        print("rShells:", rShells)
+
+        radAvg = []
+        integrated_over_time = [ [] for region in range(nRegions) ]
+
+        flowrates = []
+
+        print("Calculating Flowrates")
+        # NOTE: Flowrate: u * dA
+        for radIn, radOut in zip(rShells[:-1], rShells[1:]):
+
+            rIndex = rShells.index(radIn)
+
+            radAvg.append( (radIn + radOut) / 2 )
+
+            clipOuter = Clip(Input=flow)
+            clipOuter.ClipType = 'Cylinder'
+            clipOuter.ClipType.Axis = [0.0, 0.0, 1.0]
+            clipOuter.ClipType.Radius = radOut
+            Hide3DWidgets(proxy=clipOuter.ClipType)
+
+            clipInner = Clip(Input=clipOuter)
+            clipInner.ClipType = 'Cylinder'
+            clipInner.ClipType.Axis = [0.0, 0.0, 1.0]
+            clipInner.ClipType.Radius = radIn
+            clipInner.Invert = 0
+
+            ## Since we handle time outside the integrate function, the
+            ## only entry in the outer list is the list of integrated scalars
+            ## at the given time
+            integratedData = integrate(clipInner, ['scalar_2'], normalize=None, timeArray=[])
+            flowrates.append(integratedData[0][0])
+
+            Delete(clipInner)
+            Delete(clipOuter)
+
+        print(f"{flowrates = }")
+        print('flowrates sum:', sum(flowrates))
+
+        for timestep in range(nts):
+
+            timeKeeper.Time = timestep
+            cu.UpdatePipeline(timeArray[timestep])
+
+            print("its:", timestep)
+
+            for radIn, radOut in zip(rShells[:-1], rShells[1:]):
+                rIndex = rShells.index(radIn)
+
+                radAvg.append( (radIn + radOut) / 2 )
+
+                clipOuter = Clip(Input=cu)
+                clipOuter.ClipType = 'Cylinder'
+                clipOuter.ClipType.Axis = [0.0, 0.0, 1.0]
+                clipOuter.ClipType.Radius = radOut
+                Hide3DWidgets(proxy=clipOuter.ClipType)
+
+                clipInner = Clip(Input=clipOuter)
+                clipInner.ClipType = 'Cylinder'
+                clipInner.ClipType.Axis = [0.0, 0.0, 1.0]
+                clipInner.ClipType.Radius = radIn
+                clipInner.Invert = 0
+
+                ## Since we handle time outside the integrate function, the
+                ## only entry in the outer list is the list of integrated scalars
+                ## at the given time
+                integratedData = integrate(clipInner, ['result'], normalize=None)
+                integrated_over_time[rIndex].extend( [ x[0]/flowrates[rIndex] for x in integratedData ] )
+
+                Delete(clipInner)
+                Delete(clipOuter)
+
+        print(integrated_over_time)
+
+        for region in range(nRegions):
+            csvWriter("shell_{i}.csv".format(i=region), timeArray, integrated_over_time[region])
+
 
 
 

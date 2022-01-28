@@ -162,8 +162,7 @@ def parse_cmdline_args():
 
     ap = argparse.ArgumentParser()
 
-    ap.add_argument("-cg", "--chromatogram", choices=['Volume', 'Area', 'ResampleFlowOutlet'], help="Chromatogram: Integrate (0,0,1) surface of given volume or Integrate given area")
-    ap.add_argument("-scg", "--shell-chromatograms", type=int, help="Calculate chromatograms in n shell sections of given SURFACE")
+    ap.add_argument("-cg", "--chromatogram", choices=['full', 'shells'], default='full', help="Calculate chromatogram from given flat 2D surface of column. Requires --flow. See --shelltype.")
     ap.add_argument("--grm2d", nargs=2, type=int, help="Split into axial and radial sections and integrate scalars for fitting with 2D GRM. args: <ncol> <nrad>")
     ap.add_argument("--screenshot", action='store_true', help="Screenshot the given object")
     ap.add_argument("--bead-loading", action='store_true', help="Screenshot the given object")
@@ -179,7 +178,8 @@ def parse_cmdline_args():
     ap.add_argument("--project", nargs=4, default=['clip', 'Plane', 0.5, "x"], help="Projection. <clip|slice> <Plane|Cylinder..> <origin> <x|y|z>" )
     ap.add_argument("--pipeline", nargs='+', help="Operations to be performed in pipe" )
 
-    ap.add_argument("-st"  , "--shelltype", choices = ['EQUIDISTANT', 'EQUIVOLUME'], default='EQUIDISTANT', help="Shell discretization type")
+    ap.add_argument("-st"  , "--shelltype", choices = ['EQUIDISTANT', 'EQUIVOLUME'], default='EQUIDISTANT', help="Shell discretization type. See --nrad")
+    ap.add_argument("-nr"  , "--nrad", type=int, default=5, help="Radial discretization in particular plugins")
 
     ap.add_argument("-sa", "--show-axis", action='store_true', help="Show coordinate axis")
     ap.add_argument("-sb", "--show-scalar-bar", action='store_true', help="Show scalar color bar")
@@ -190,7 +190,8 @@ def parse_cmdline_args():
     ap.add_argument("-g", "--geometry", nargs=2, type=int, default=[1750, 1300], help="Animation geometry size")
     ap.add_argument("-f", "--filetype", default='pvtu', choices=['xdmf', 'vtu', 'vtk', 'pvtu'], help="filetype: xdmf | vtu | vtk | pvtu")
 
-    ap.add_argument("--flow", help="Flowfield pvtu/vtu file")
+    ap.add_argument("--flow", help="Flowfield pvtu/vtu file for use in chromatograms. May need --resample-flow.")
+    ap.add_argument("--resample-flow", action='store_true', default=False, help="Flag to resample flowfield data using concentration mesh")
 
     ap.add_argument("FILES", nargs='*', help="files..")
 
