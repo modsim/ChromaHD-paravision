@@ -162,7 +162,7 @@ def parse_cmdline_args():
 
     ap = argparse.ArgumentParser()
 
-    ap.add_argument("-cg", "--chromatogram", choices=['full', 'shells'], default='full', help="Calculate chromatogram from given flat 2D surface of column. Requires --flow. See --shelltype.")
+    ap.add_argument("-cg", "--chromatogram", choices=['full', 'shells'], help="Calculate chromatogram from given flat 2D surface of column. Requires --flow. See --shelltype.")
     ap.add_argument("--grm2d", nargs=2, type=int, help="Split into axial and radial sections and integrate scalars for fitting with 2D GRM. args: <ncol> <nrad>")
     ap.add_argument("--screenshot", action='store_true', help="Screenshot the given object")
     ap.add_argument("--bead-loading", action='store_true', help="Screenshot the given object")
