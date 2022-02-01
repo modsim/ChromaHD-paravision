@@ -17,16 +17,6 @@ def screenshot(object, args, suffix=''):
 
     projection = project(object, args)
 
-    display = Show(projection, view)
-    display.Representation = args['display_representation']
-    view.OrientationAxesVisibility = args['show_axis']
-
-    # view.Update()
-    # view.ResetCamera()
-    # view.ViewSize = args['geometry']
-
-    view_handler(args['view'], args['zoom'])
-
     for scalar in args['scalars']:
         print("Snapping", scalar )
 
@@ -36,9 +26,7 @@ def screenshot(object, args, suffix=''):
         display.RescaleTransferFunctionToDataRange()
         display.UpdatePipeline()
 
-        view.Update()
-        view.ViewSize = args['geometry']
-        view.ResetCamera()
+        view_handler(args['view'], args['zoom'])
         UpdateScalarBars()
 
         if scalar == 'None':
