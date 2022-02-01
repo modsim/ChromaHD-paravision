@@ -166,7 +166,7 @@ def parse_cmdline_args():
     ap.add_argument("--grm2d", nargs=2, type=int, help="Split into axial and radial sections and integrate scalars for fitting with 2D GRM. args: <ncol> <nrad>")
     ap.add_argument("--screenshot", action='store_true', help="Screenshot the given object")
     ap.add_argument("--bead-loading", action='store_true', help="Screenshot the given object")
-    ap.add_argument("--radial-shell-integrate", type=int, help="Divide object radially and integrate")
+    ap.add_argument("--radial-shell-integrate", choices=['Volume', 'Area', 'NoNorm'], const='NoNorm', nargs='?', help="Divide object radially and integrate. Choices indicate normalization method. See --nrad, --shelltype")
     ap.add_argument("--column-snapshot", action='store_true', help="Snapshot the column with a semi-transparent container")
     ap.add_argument("--volume-integral", action='store_true', help="Calculate AVERAGES using the volume integral. EXPERIMENTAL. TO BE REPLACED")
     ap.add_argument("--mass-flux", type=int, help="Calculate mass flux (or volume flux) at n slices")

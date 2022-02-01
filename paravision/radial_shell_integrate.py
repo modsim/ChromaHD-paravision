@@ -13,7 +13,9 @@ def radial_shell_integrate(reader, args):
         print(key + ': ', args[key])
 
     scalars = args['scalars'] or reader.PointArrayStatus
-    nRegions = int(args['radial_shell_integrate'])
+    nRegions = args.nrad
+    shellType = args.shelltype
+
 
     ## Calc bounding box. Requires show
     view = GetActiveViewOrCreate('RenderView')
@@ -21,15 +23,12 @@ def radial_shell_integrate(reader, args):
     (xmin,xmax,ymin,ymax,zmin,zmax) = GetActiveSource().GetDataInformation().GetBounds()
     Hide(reader, view)
 
-    # nRegions = 3
     nShells = nRegions + 1 #Including r = 0
     rShells = []
 
     R = (xmax - xmin + ymax - ymin)/4
     print("R:", R)
 
-    shellType = 'EQUIDISTANT'
-    # shellType = 'EQUIVOLUME'
     if shellType == 'EQUIVOLUME':
         for n in range(nShells):
             rShells.append(R * sqrt(n/nRegions))
@@ -52,44 +51,21 @@ def radial_shell_integrate(reader, args):
         clipOuter.ClipType.Radius = radOut
         Hide3DWidgets(proxy=clipOuter.ClipType)
 
-        # renderView1 = GetActiveViewOrCreate('RenderView')
-        # projectionDisplay = Show(clipOuter, renderView1)
-        # projectionDisplay.Representation = 'Surface'
-        # # projectionDisplay.Representation = 'Surface With Edges'
-        # renderView1.OrientationAxesVisibility = int(axisVisible)
-        # projectionDisplay.RescaleTransferFunctionToDataRange()
-
         clipInner = Clip(Input=clipOuter)
         clipInner.ClipType = 'Cylinder'
         clipInner.ClipType.Axis = [0.0, 0.0, 1.0]
         clipInner.ClipType.Radius = radIn
         clipInner.Invert = 0
 
-        # TODO: Remove this
-        cellSize1 = CellSize(Input=clipInner)
-        cellSize1.ComputeVolume = 1
-        cellSize1.ComputeSum = 1
-
-        volume = servermanager.Fetch(cellSize1)
-        volume = dsa.WrapDataObject(volume)
-        volume = volume.FieldData['Volume'][0]
-        print("VOLUME:", volume)
-
-        integrated = IntegrateVariables(Input=clipInner)
-        intdata = servermanager.Fetch(integrated)
-        intdata = dsa.WrapDataObject(intdata)
-
-        values = []
-        for scalar in scalars:
-            value = intdata.PointData[scalar]
-            value = ns.vtk_to_numpy(value)
-            values.append(value[0]/volume) ## Average of velocity, instead of integ(v.dV)
+        values = integrate(clipInner, scalars, normalize=args.radial_shell_integrate)[0]
 
         print(values)
-        appended.extend(values)
+        appended.append(values)
 
     print("Average scalar by radius:", appended)
-    csvWriter('radial_shell_integrate', radAvg, appended)
+
+    for i, scalar in enumerate(scalars): 
+        csvWriter(f'radial_shell_integrate_{scalar}.csv', radAvg, map(lambda x: x[i], appended))
 
 if __name__=="__main__":
     args = parse_cmdline_args()
