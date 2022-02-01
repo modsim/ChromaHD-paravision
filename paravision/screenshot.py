@@ -1,9 +1,10 @@
 from paraview.simple import *
 from paravision.utils import view_handler
 from paravision.utils import parse_cmdline_args, read_files
+from paravision.project import project
 
 def screenshot(object, args, suffix=''):
-    """ Screenshot a given object """
+    """ Screenshot a given object with a given projection"""
     for key in args:
         print(key + ': ', args[key])
 
@@ -14,7 +15,9 @@ def screenshot(object, args, suffix=''):
 
     view = GetActiveViewOrCreate('RenderView')
 
-    display = Show(object, view)
+    projection = project(object, args)
+
+    display = Show(projection, view)
     display.Representation = args['display_representation']
     view.OrientationAxesVisibility = args['show_axis']
 
@@ -27,7 +30,7 @@ def screenshot(object, args, suffix=''):
     for scalar in args['scalars']:
         print("Snapping", scalar )
 
-        display = Show(object, view)
+        display = Show(projection, view)
         display.Representation = args['display_representation']
         view.OrientationAxesVisibility = args['show_axis']
         display.RescaleTransferFunctionToDataRange()
