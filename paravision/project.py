@@ -9,8 +9,6 @@ def project(object, args):
     origin = args['project'][2]
     normal = args['project'][3]
 
-    origin, normal = default_origin_normal(object, origin, normal)
-
     # projectionView = GetActiveViewOrCreate('RenderView')
     # display = Show(object, projectionView)
     # (xmin,xmax,ymin,ymax,zmin,zmax) = GetActiveSource().GetDataInformation().GetBounds()
@@ -22,6 +20,7 @@ def project(object, args):
 
     projection = None
     if projectionType.lower() == 'clip':
+        origin, normal = default_origin_normal(object, origin, normal)
         projection = Clip(Input=object)
         projection.ClipType = geometry
         # projection.HyperTreeGridSlicer = geometry
@@ -29,6 +28,7 @@ def project(object, args):
         projection.ClipType.Normal = normal
         Hide3DWidgets(proxy=projection.ClipType)
     elif projectionType.lower() == 'slice':
+        origin, normal = default_origin_normal(object, origin, normal)
         projection = Slice(Input=object)
         projection.SliceType = geometry
         projection.HyperTreeGridSlicer = geometry
