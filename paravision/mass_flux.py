@@ -57,6 +57,7 @@ def mass_flux(reader, args):
         intdata = servermanager.Fetch(integrated)
         intdata = dsa.WrapDataObject(intdata)
         value = intdata.PointData[scalar]
+        print('Area:', intdata.CellData['Area'][0])
         try:
             value = ns.vtk_to_numpy(value)
             flowrate.append(value[0])
