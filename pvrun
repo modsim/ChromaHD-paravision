@@ -62,6 +62,8 @@ def main():
         run_command("paravision.radial_shell_integrate", argv_sub, args.nproc)
     elif args.column_snapshot:
         run_command("paravision.column_snapshot", argv_sub, args.nproc)
+    elif args.column_snapshot_fast:
+        run_command("paravision.column_snapshot_fast", argv_sub, args.nproc)
     elif args.volume_integral:
         run_command("paravision.volume_integral", argv_sub, args.nproc)
     elif args.bead_loading:
@@ -74,6 +76,7 @@ def main():
         run_command("paravision.screenshot", argv_sub, args.nproc)
     elif args.pipeline:
         ## NOTE: Pipeline operations below [EXPERIMENTAL]
+        ## NOTE: Doesn't work in parallel!!
         ## The idea is to provide the sequence of operations on the commandline
         ##  and execute it here
         from paravision.project import project
