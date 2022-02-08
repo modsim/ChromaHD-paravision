@@ -11,7 +11,7 @@ def mass_flux(reader, args):
     for key in args:
         print(key + ': ', args[key])
 
-    colorVars = args['colorVars'] or reader.PointArrayStatus
+    scalars = args['scalars'] or reader.PointArrayStatus
     nSlice = args['mass_flux'] or 1
 
     view = GetActiveViewOrCreate('RenderView')
@@ -25,7 +25,7 @@ def mass_flux(reader, args):
     Hide(reader, view)
 
     ## NOTE: Only takes takes one color
-    colorVar = colorVars[0]
+    scalar = scalars[0]
     flowrate = []
     zs = []
 
@@ -56,7 +56,7 @@ def mass_flux(reader, args):
         integrated = IntegrateVariables(Input=projection)
         intdata = servermanager.Fetch(integrated)
         intdata = dsa.WrapDataObject(intdata)
-        value = intdata.PointData[colorVar]
+        value = intdata.PointData[scalar]
         try:
             value = ns.vtk_to_numpy(value)
             flowrate.append(value[0])
