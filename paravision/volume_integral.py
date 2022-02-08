@@ -3,6 +3,7 @@ from vtkmodules.numpy_interface import dataset_adapter as dsa
 import vtk.util.numpy_support as ns #type:ignore
 
 from paravision.utils import parse_cmdline_args, read_files, csvWriter
+from paravision.integrate import integrate
 
 # TODO: Update this with --integrate?
 
@@ -13,44 +14,15 @@ def volume_integral(reader, args):
 
     timeKeeper = GetTimeKeeper()
     nts = len(reader.TimestepValues)
+    timeArray = reader.TimestepValues
 
     view = GetActiveViewOrCreate('RenderView')
 
-    # cellSize1 = CellSize(Input=reader)
-    # cellSize1.ComputeVolume= 1
-    # cellSize1.ComputeSum = 1
-    # volume = servermanager.Fetch(cellSize1)
-    # volume = dsa.WrapDataObject(volume)
-    # volume = volume.FieldData['Volume'][0]
-    # print("volume:", volume)
+    result = integrate(reader, scalars, normalize=args['volume_integral'], timeArray=timeArray)
 
-    intOutput = {}
-    for scalar in scalars:
-        intOutput.update({scalar: []})
-        print(type(intOutput[scalar]))
-
-    for timestep in range(nts):
-
-        timeKeeper.Time = timestep
-        # print("Processing timestep: ", timestep, end="\r")
-        reader.UpdatePipeline(reader.TimestepValues[timestep])
-
-        integrated = IntegrateVariables(Input=reader)
-        intdata = servermanager.Fetch(integrated)
-        intdata = dsa.WrapDataObject(intdata)
-
-        volume = intdata.CellData['Volume'][0]
-
-        for scalar in scalars:
-            value = intdata.PointData[scalar]
-            value = ns.vtk_to_numpy(value)[0]/volume
-            intOutput[scalar].append(value)
-
-        Delete(integrated)
-
-    print(intOutput)
-    for scalar in scalars:
-        csvWriter(scalar + '.integrated.csv', reader.TimestepValues, intOutput[scalar])
+    print(result)
+    for i,scalar in enumerate(scalars):
+        csvWriter(scalar + '.integrated.csv', reader.TimestepValues, map(lambda x: x[i], result))
 
 if __name__=="__main__":
     args = parse_cmdline_args()
