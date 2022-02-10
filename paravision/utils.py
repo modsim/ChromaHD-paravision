@@ -214,6 +214,8 @@ def parse_cmdline_args():
     ap.add_argument("--flow", help="Flowfield pvtu/vtu file for use in chromatograms. May need --resample-flow.")
     ap.add_argument("--resample-flow", action='store_true', default=False, help="Flag to resample flowfield data using concentration mesh")
 
+    ap.add_argument("-o", "--output-prefix", help="prefix for output filenames")
+
     ap.add_argument("FILES", nargs='*', help="files..")
 
     args = Dict(vars(ap.parse_args()))
