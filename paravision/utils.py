@@ -201,7 +201,7 @@ def parse_cmdline_args():
     ap.add_argument("-st"  , "--shelltype", choices = ['EQUIDISTANT', 'EQUIVOLUME'], default='EQUIDISTANT', help="Shell discretization type. See --nrad")
     ap.add_argument("-nr"  , "--nrad", type=int, default=5, help="Radial discretization in particular plugins")
 
-    ap.add_argument("-cm", "--colormap", choices=COLORMAPS, default='Viridis (matplotlib)', help="Show coordinate axis")
+    ap.add_argument("-cm", "--colormap", default='Viridis (matplotlib)', help="Show coordinate axis")
     ap.add_argument("-sa", "--show-axis", action='store_true', help="Show coordinate axis")
     ap.add_argument("-sb", "--show-scalar-bar", action='store_true', help="Show scalar color bar")
     ap.add_argument("-dr", "--display-representation", default='Surface', choices=['Surface', 'Surface With Edges', 'Points'],  help="Show Surface, Surface With Edges, etc")
