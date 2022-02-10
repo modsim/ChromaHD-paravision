@@ -207,8 +207,8 @@ def parse_cmdline_args():
     ap.add_argument("-dr", "--display-representation", default='Surface', choices=['Surface', 'Surface With Edges', 'Points'],  help="Show Surface, Surface With Edges, etc")
     ap.add_argument("-s", "--scalars" , nargs='*' , help="Scalars to consider. (Previously colorvars).")
     ap.add_argument("-z", "--zoom", type=float, default=1, help="Zoom (camera.dolly) value for view")
-    ap.add_argument("-v", "--view", nargs=2, default=["-x",  "+y"], help="Set view: target, viewup. Use +x, -z notation.")
     ap.add_argument("-g", "--geometry", nargs=2, type=int, default=[3840, 2160], help="Animation geometry size")
+    ap.add_argument("-v", "--view", nargs=2, default=["-x",  "-y"], help="Set view: target, viewup. Use +x, -z notation.")
     ap.add_argument("-f", "--filetype", default='pvtu', choices=['xdmf', 'vtu', 'vtk', 'pvtu'], help="filetype: xdmf | vtu | vtk | pvtu")
 
     ap.add_argument("--flow", help="Flowfield pvtu/vtu file for use in chromatograms. May need --resample-flow.")
