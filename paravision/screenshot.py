@@ -15,6 +15,7 @@ def screenshot(object, args, suffix=''):
 
     view = GetActiveViewOrCreate('RenderView')
     view.OrientationAxesVisibility = args['show_axis']
+    view.ViewSize = args['geometry']
 
     projection = project(object, args)
 
