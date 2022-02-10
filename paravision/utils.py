@@ -176,7 +176,7 @@ def parse_cmdline_args():
             'Blue - Green - Orange',
             'Rainbow Desaturated',
             'Yellow - Gray - Blue',
-            'Rainbow  Uniform',
+            'Rainbow Uniform',
             'Jet'
             ]
 
