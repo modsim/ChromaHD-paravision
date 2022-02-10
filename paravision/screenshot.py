@@ -3,7 +3,7 @@ from paravision.utils import view_handler
 from paravision.utils import parse_cmdline_args, read_files
 from paravision.project import project
 
-def screenshot(object, args, suffix=''):
+def screenshot(object, args):
     """ Screenshot a given object with a given projection"""
     for key in args:
         print(key + ': ', args[key])
@@ -48,7 +48,7 @@ def screenshot(object, args, suffix=''):
         # view.Update()
         # display.UpdatePipeline()
 
-        SaveScreenshot('screenshot_' + scalar + '_' + suffix + '.png', view, ImageResolution=args['geometry'], TransparentBackground=1)
+        SaveScreenshot(f'screenshot_{args.output_prefix}_{scalar}.png', view, ImageResolution=args['geometry'], TransparentBackground=1)
         Hide(display, view)
 
 def configure_scalar_bar(wLUT, view, title, fontfamily='Times', fontsize=18 ):
