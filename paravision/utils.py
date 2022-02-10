@@ -162,6 +162,24 @@ def parse_cmdline_args():
 
     ap = argparse.ArgumentParser()
 
+    COLORMAPS = [ 'Cool to Warm',
+            'Cool to Warm (Extended)',
+            'Black-Body Radiation',
+            'X Ray',
+            'Inferno (matplotlib)',
+            'Black, Blue and White',
+            'Blue Orange (divergent)',
+            'Viridis (matplotlib)',
+            'Gray and Red',
+            'Linear Green (Gr4L)',
+            'Cold and Hot',
+            'Blue - Green - Orange',
+            'Rainbow Desaturated',
+            'Yellow - Gray - Blue',
+            'Rainbow  Uniform',
+            'Jet'
+            ]
+
     ap.add_argument("-cg", "--chromatogram", choices=['full', 'shells'], help="Calculate chromatogram from given flat 2D surface of column. Requires --flow. See --shelltype.")
     ap.add_argument("--grm2d", nargs=2, type=int, help="Split into axial and radial sections and integrate scalars for fitting with 2D GRM. args: <ncol> <nrad>")
     ap.add_argument("--screenshot", action='store_true', help="Screenshot the given object")
@@ -183,6 +201,7 @@ def parse_cmdline_args():
     ap.add_argument("-st"  , "--shelltype", choices = ['EQUIDISTANT', 'EQUIVOLUME'], default='EQUIDISTANT', help="Shell discretization type. See --nrad")
     ap.add_argument("-nr"  , "--nrad", type=int, default=5, help="Radial discretization in particular plugins")
 
+    ap.add_argument("-cm", "--colormap", choices=COLORMAPS, default='Viridis (matplotlib)', help="Show coordinate axis")
     ap.add_argument("-sa", "--show-axis", action='store_true', help="Show coordinate axis")
     ap.add_argument("-sb", "--show-scalar-bar", action='store_true', help="Show scalar color bar")
     ap.add_argument("-dr", "--display-representation", default='Surface', choices=['Surface', 'Surface With Edges', 'Points'],  help="Show Surface, Surface With Edges, etc")
