@@ -18,28 +18,34 @@ def screenshot(object, args):
     view.ViewSize = args['geometry']
 
     projection = project(object, args)
+    pd = projection.PointData
 
     for scalar in args['scalars']:
         print("Snapping", scalar )
 
         display = Show(projection, view)
         display.Representation = args['display_representation']
-        display.RescaleTransferFunctionToDataRange(False, True)
-        # RescaleTransferFunction(0.0, 0.007428335025126975)
-
-        view_handler(args['view'], args['zoom'])
-        # view.Update()
 
         if scalar == 'None':
             ColorBy(display, None)
         else:
             ColorBy(display, ('POINTS', scalar))
 
+        view_handler(args['view'], args['zoom'])
+        # view.Update()
+
         wLUT = GetColorTransferFunction(scalar)
         wPWF = GetOpacityTransferFunction(scalar)
         # HideScalarBarIfNotNeeded(wLUT, view)
 
         wLUT.ApplyPreset(args['colormap'], True)
+
+        if args.color_range: 
+            wLUT.RescaleTransferFunction(args.color_range[0], args.color_range[1])
+        else: 
+            # crange = pd.GetArray(scalar).GetRange()
+            # print(f"Setting Color Range for {scalar}: {crange}")
+            display.RescaleTransferFunctionToDataRange(False, True)
 
         configure_scalar_bar(wLUT, view, scalar)
 
