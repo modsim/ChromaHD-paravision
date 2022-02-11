@@ -6,6 +6,7 @@ __credits__ = 'FZJ/IBG-1/ModSim'
 
 # Imports
 from .chromatogram import chromatogram
+from .configHandler import ConfigHandler
 
 from . import utils
 from . import log
