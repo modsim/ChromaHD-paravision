@@ -40,12 +40,18 @@ def screenshot(object, args):
 
         wLUT.ApplyPreset(args['colormap'], True)
 
-        if args.color_range: 
-            wLUT.RescaleTransferFunction(args.color_range[0], args.color_range[1])
-        else: 
-            # crange = pd.GetArray(scalar).GetRange()
-            # print(f"Setting Color Range for {scalar}: {crange}")
+        if args.custom_color_range: 
+            wLUT.RescaleTransferFunction(args.custom_color_range[0], args.custom_color_range[1])
+        elif args.color_range_method == 'auto': 
             display.RescaleTransferFunctionToDataRange(False, True)
+        elif args.color_range_method == 'startzero': 
+            crange = pd.GetArray(scalar).GetRange()
+            wLUT.RescaleTransferFunction(0.0, crange[1])
+        elif args.color_range_method == 'midzero': 
+            crange = pd.GetArray(scalar).GetRange()
+            wLUT.RescaleTransferFunction(-max(crange), max(crange))
+        elif args.color_range_method == 'custom': 
+            wLUT.RescaleTransferFunction(args.custom_color_range[0], args.custom_color_range[1])
 
         configure_scalar_bar(wLUT, view, scalar)
 
