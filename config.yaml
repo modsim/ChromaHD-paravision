@@ -1,0 +1,42 @@
+ColorBar:
+  AutoOrient: 1
+  Orientation: 'Vertical'
+  WindowLocation: 'LowerRightCorner'
+  Position: [0.89, 0.02]
+  Title: ''
+  ComponentTitle: ''
+  TitleJustification: 'Centered'
+  HorizontalTitle: 0
+  TitleOpacity: 1.0
+  TitleFontFamily: 'Arial'
+  TitleFontFile: ''
+  TitleBold: 0
+  TitleItalic: 0
+  TitleShadow: 0
+  TitleFontSize: 16
+  TitleColor: [0.0, 0.0, 0.0]
+  LabelOpacity: 1.0
+  LabelFontFamily: 'Arial'
+  LabelFontFile: ''
+  LabelBold: 0
+  LabelItalic: 0
+  LabelShadow: 0
+  LabelFontSize: 16
+  LabelColor: [0.0, 0.0, 0.0]
+  AutomaticLabelFormat: 1
+  LabelFormat: '%-#6.3g'
+  DrawTickMarks: 1
+  DrawTickLabels: 1
+  UseCustomLabels: 0
+  CustomLabels: []
+  AddRangeLabels: 1
+  RangeLabelFormat: '%-#6.1e'
+  DrawAnnotations: 1
+  AddRangeAnnotations: 0
+  AutomaticAnnotations: 0
+  DrawNanAnnotation: 0
+  NanAnnotation: 'NaN'
+  TextPosition: 'Ticks right/top, annotations left/bottom'
+  ReverseLegend: 0
+  ScalarBarThickness: 16
+  ScalarBarLength: 0.33

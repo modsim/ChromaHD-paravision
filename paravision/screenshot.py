@@ -3,6 +3,8 @@ from paravision.utils import view_handler
 from paravision.utils import parse_cmdline_args, read_files
 from paravision.project import project
 
+from paravision import ConfigHandler
+
 def screenshot(object, args):
     """ Screenshot a given object with a given projection"""
     for key in args:
@@ -53,7 +55,9 @@ def screenshot(object, args):
         elif args.color_range_method == 'custom': 
             wLUT.RescaleTransferFunction(args.custom_color_range[0], args.custom_color_range[1])
 
-        configure_scalar_bar(wLUT, view, scalar)
+        config = ConfigHandler()
+        config.read(args['config'])
+        configure_scalar_bar(wLUT, view, config.config.ColorBar)
 
         UpdateScalarBars()
         display.SetScalarBarVisibility(view, args['show_scalar_bar'])
@@ -63,33 +67,50 @@ def screenshot(object, args):
         SaveScreenshot(f'screenshot_{args.output_prefix}_{scalar}.png', view, ImageResolution=args['geometry'], TransparentBackground=1)
         Hide(display, view)
 
-def configure_scalar_bar(wLUT, view, title, fontfamily='Times', fontsize=18 ):
-    ColorBar = GetScalarBar(wLUT, view)
-    ColorBar.Orientation = 'Horizontal'
-    ColorBar.WindowLocation = 'LowerCenter'
-    ColorBar.Title = title
-    ColorBar.ComponentTitle = ''
-    ColorBar.TitleJustification = 'Centered'
-    ColorBar.HorizontalTitle = 1
-    ColorBar.TitleColor = [0.0, 0.0, 0.0]
-    ColorBar.TitleOpacity = 1.0
-    ColorBar.TitleFontFamily = fontfamily
-    ColorBar.TitleBold = 0
-    ColorBar.TitleItalic = 0
-    ColorBar.TitleShadow = 0
-    ColorBar.TitleFontSize = fontsize
-    ColorBar.LabelColor = [0.0, 0.0, 0.0]
-    ColorBar.LabelOpacity = 1.0
-    ColorBar.LabelFontFamily = fontfamily
-    ColorBar.LabelFontFile = ''
-    ColorBar.LabelBold = 0
-    ColorBar.LabelItalic = 0
-    ColorBar.LabelShadow = 0
-    ColorBar.LabelFontSize = fontsize
-    ColorBar.AutomaticLabelFormat = 1
-    ColorBar.LabelFormat = '%-#6.3g'
-    ColorBar.ScalarBarThickness = 20
-    ColorBar.ScalarBarLength = 0.50
+def configure_scalar_bar(LUT, view, colorbar_config):
+    ColorBar                      = GetScalarBar(LUT, view)
+    ColorBar.AutoOrient           = colorbar_config.AutoOrient
+    ColorBar.Orientation          = colorbar_config.Orientation
+    ColorBar.WindowLocation       = colorbar_config.WindowLocation
+    ColorBar.Position             = colorbar_config.Position
+    ColorBar.Title                = colorbar_config.Title
+    ColorBar.ComponentTitle       = colorbar_config.ComponentTitle
+    ColorBar.TitleJustification   = colorbar_config.TitleJustification
+    ColorBar.HorizontalTitle      = colorbar_config.HorizontalTitle
+    ColorBar.TitleOpacity         = colorbar_config.TitleOpacity
+    ColorBar.TitleFontFamily      = colorbar_config.TitleFontFamily
+    ColorBar.TitleFontFile        = colorbar_config.TitleFontFile
+    ColorBar.TitleBold            = colorbar_config.TitleBold
+    ColorBar.TitleItalic          = colorbar_config.TitleItalic
+    ColorBar.TitleShadow          = colorbar_config.TitleShadow
+    ColorBar.TitleFontSize        = colorbar_config.TitleFontSize
+    ColorBar.TitleColor           = colorbar_config.TitleColor
+    ColorBar.LabelOpacity         = colorbar_config.LabelOpacity
+    ColorBar.LabelFontFamily      = colorbar_config.LabelFontFamily
+    ColorBar.LabelFontFile        = colorbar_config.LabelFontFile
+    ColorBar.LabelBold            = colorbar_config.LabelBold
+    ColorBar.LabelItalic          = colorbar_config.LabelItalic
+    ColorBar.LabelShadow          = colorbar_config.LabelShadow
+    ColorBar.LabelFontSize        = colorbar_config.LabelFontSize
+    ColorBar.LabelColor           = colorbar_config.LabelColor
+    ColorBar.AutomaticLabelFormat = colorbar_config.AutomaticLabelFormat
+    ColorBar.LabelFormat          = colorbar_config.LabelFormat
+    ColorBar.DrawTickMarks        = colorbar_config.DrawTickMarks
+    ColorBar.DrawTickLabels       = colorbar_config.DrawTickLabels
+    ColorBar.UseCustomLabels      = colorbar_config.UseCustomLabels
+    ColorBar.CustomLabels         = colorbar_config.CustomLabels
+    ColorBar.AddRangeLabels       = colorbar_config.AddRangeLabels
+    ColorBar.RangeLabelFormat     = colorbar_config.RangeLabelFormat
+    ColorBar.DrawAnnotations      = colorbar_config.DrawAnnotations
+    ColorBar.AddRangeAnnotations  = colorbar_config.AddRangeAnnotations
+    ColorBar.AutomaticAnnotations = colorbar_config.AutomaticAnnotations
+    ColorBar.DrawNanAnnotation    = colorbar_config.DrawNanAnnotation
+    ColorBar.NanAnnotation        = colorbar_config.NanAnnotation
+    ColorBar.TextPosition         = colorbar_config.TextPosition
+    ColorBar.ReverseLegend        = colorbar_config.ReverseLegend
+    ColorBar.ScalarBarThickness   = colorbar_config.ScalarBarThickness
+    ColorBar.ScalarBarLength      = colorbar_config.ScalarBarLength
+
 
 if __name__=="__main__":
     args = parse_cmdline_args()
