@@ -51,7 +51,7 @@ def screenshot(object, args):
             wLUT.RescaleTransferFunction(0.0, crange[1])
         elif args.color_range_method == 'midzero': 
             crange = pd.GetArray(scalar).GetRange()
-            wLUT.RescaleTransferFunction(-max(crange), max(crange))
+            wLUT.RescaleTransferFunction(-abs(max(crange, key=abs)), abs(max(crange, key=abs))
         elif args.color_range_method == 'custom': 
             wLUT.RescaleTransferFunction(args.custom_color_range[0], args.custom_color_range[1])
 
