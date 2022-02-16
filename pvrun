@@ -36,22 +36,6 @@ def main():
 
     argv_sub = sys.argv[1:]
 
-
-    # timeKeeper = GetTimeKeeper()
-    #
-    # timeArray = reader.TimestepValues
-    # nts = len(timeArray) or 1
-    #
-    # args.scalars = args.scalars or reader.PointArrayStatus
-    #
-    # scalars = args.scalars
-    # shellType = args.shelltype
-
-    # ## Specifically integrate to get the chromatogram output
-    # ## with either full volume input -> manually extract surfaces and chromatogram
-    # ## or surface input, that just needs to be integrated
-    # integratedData = []
-
     if args.chromatogram:
         run_command("paravision.chromatogram", argv_sub, args.nproc)
     elif args.shell_chromatograms:
