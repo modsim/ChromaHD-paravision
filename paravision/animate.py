@@ -7,29 +7,31 @@ def animate(reader, args):
     for key in args:
         print(key + ': ', args[key])
     projectionType = args['projectionType']
-    colorVars = args['colorVars'] or reader.PointArrayStatus
+    scalars = args['scalars'] or reader.PointArrayStatus
     scalarBarVisible = not args['no_scalar_bar']
     geometry = args['geometry']
     axisVisible = not args['no_coordinate_axis']
     zoom = args['zoom']
 
-    animationScene1 = GetAnimationScene()
-    timeKeeper1 = GetTimeKeeper()
-    animationScene1.UpdateAnimationUsingDataTimeSteps()
+    animationScene = GetAnimationScene()
+    timekeeper = GetTimeKeeper()
+    animationScene.UpdateAnimationUsingDataTimeSteps()
+    timeArray = reader.TimestepValues
+    nts = len(timeArray) or 1
 
     ## TODO: Animate using constant scalarbar range
     ## TODO: Fix animation for one timestep
 
     # try:
     #     ## Use last timestep as reference for creating color map
-    #     animationScene1.AnimationTime = reader.TimestepValues[-1]
-    #     timeKeeper1.Time = reader.TimestepValues[-1]
+    #     animationScene.AnimationTime = reader.TimestepValues[-1]
+    #     timekeeper.Time = reader.TimestepValues[-1]
     # except:
     #     ## for files without time data
-    #     animationScene1.AnimationTime = 0
-    #     animationScene1.StartTime = 0
-    #     animationScene1.EndTime = 0
-    #     timeKeeper1.Time = 0
+    #     animationScene.AnimationTime = 0
+    #     animationScene.StartTime = 0
+    #     animationScene.EndTime = 0
+    #     timekeeper.Time = 0
 
     # projection = Projection(reader, projectionType)
     projection = project(reader, args)
@@ -45,28 +47,42 @@ def animate(reader, args):
     # setCameraOrientation(zoom)
     view_handler(args['view'], args['zoom'])
 
-    for colorVar in colorVars:
-        print("Animating", colorVar )
+    for scalar in scalars:
+        print("Animating", scalar )
 
-        if colorVar == 'None':
+        if scalar == 'None':
             ColorBy(projectionDisplay, None)
         else:
-            ColorBy(projectionDisplay, ('POINTS', colorVar))
+            ColorBy(projectionDisplay, ('POINTS', scalar))
 
-        ## NOTE: Removing this should HELP fix the varying scalar bar range for every frame
-        projectionDisplay.RescaleTransferFunctionToDataRange()
+        # ## NOTE: Removing this should HELP fix the varying scalar bar range for every frame
+        # projectionDisplay.RescaleTransferFunctionToDataRange()
 
-        wLUT = GetColorTransferFunction(colorVar)
-        wPWF = GetOpacityTransferFunction(colorVar)
+        ## Find the min/max range of data over all timesteps
+        pd_ranges_t = []
+        for timestep in range(nts):
+            projection.UpdatePipeline(timeArray[timestep])
+            pd = projection.PointData
+            pd_ranges_t.append(pd.GetArray(scalar).GetRange())
+
+        pd_range_min = min(pd_ranges_t)[0]
+        pd_range_max = max(pd_ranges_t)[1]
+
+        print(f"Setting color bar range to min/max over all timesteps: {(pd_range_min, pd_range_max)}")
+
+        wLUT = GetColorTransferFunction(scalar)
+        wPWF = GetOpacityTransferFunction(scalar)
         HideScalarBarIfNotNeeded(wLUT, view)
 
         wLUT.ApplyPreset('Rainbow Uniform', True)
+
+        wLUT.RescaleTransferFunction(pd_range_min, pd_range_max)
 
         view.Update()
         UpdateScalarBars()
 
         projectionDisplay.SetScalarBarVisibility(view, scalarBarVisible)
-        SaveAnimation(colorVar + '.png', view, ImageResolution=geometry, TransparentBackground=1, SuffixFormat='.%04d')
+        SaveAnimation(scalar + '.png', view, ImageResolution=geometry, TransparentBackground=1, SuffixFormat='.%04d')
 
 if __name__=="__main__":
     args = parse_cmdline_args()
