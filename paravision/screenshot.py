@@ -51,13 +51,14 @@ def screenshot(object, args):
             wLUT.RescaleTransferFunction(0.0, crange[1])
         elif args.color_range_method == 'midzero': 
             crange = pd.GetArray(scalar).GetRange()
-            wLUT.RescaleTransferFunction(-abs(max(crange, key=abs)), abs(max(crange, key=abs))
+            wLUT.RescaleTransferFunction(-abs(max(crange, key=abs)), abs(max(crange, key=abs)))
         elif args.color_range_method == 'custom': 
             wLUT.RescaleTransferFunction(args.custom_color_range[0], args.custom_color_range[1])
 
-        config = ConfigHandler()
-        config.read(args['config'])
-        configure_scalar_bar(wLUT, view, config.config.ColorBar)
+        if args['config']: 
+            config = ConfigHandler()
+            config.read(args['config'])
+            configure_scalar_bar(wLUT, view, config.config.ColorBar)
 
         UpdateScalarBars()
         display.SetScalarBarVisibility(view, args['show_scalar_bar'])
