@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
+import os
 
 from paravision.utils import parse_cmdline_args, read_files
 
@@ -9,15 +10,21 @@ import subprocess
 
 
 def run_command(module:str, args:list, nproc:int=1):
+
+    ## Needed because subprocess.run couldn't find modules
+    myenv = os.environ
+    pythonpath = os.pathsep.join(sys.path)
+    myenv.update({'PYTHONPATH': pythonpath})
+
     if nproc > 1:
         command_pre = [ 'mpiexec', '-np', str(nproc), 'pvbatch' ]
-        pvbatch_path = subprocess.run(['which', 'pvbatch'], capture_output=True)
+        pvbatch_path = subprocess.run(['which', 'pvbatch'], capture_output=True, env=myenv)
         print(f"Using pvbatch from path: {pvbatch_path.stdout.decode('ascii').strip()}")
-        mpiexec_path = subprocess.run(['which', 'mpiexec'], capture_output=True)
+        mpiexec_path = subprocess.run(['which', 'mpiexec'], capture_output=True, env=myenv)
         print(f"Using mpiexec from path: {mpiexec_path.stdout.decode('ascii').strip()}")
     else:
         command_pre = [ 'pvpython' ]
-        pvpython_path = subprocess.run(['which', 'pvpython'], capture_output=True)
+        pvpython_path = subprocess.run(['which', 'pvpython'], capture_output=True, env=myenv)
         print(f"Using pvpython from path: {pvpython_path.stdout.decode('ascii').strip()}")
 
     command = []

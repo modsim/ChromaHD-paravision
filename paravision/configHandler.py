@@ -30,7 +30,10 @@ class ConfigHandler:
         """
             Read the config yaml file, save into config dict
         """
-        self.config = Dict(self.yaml.load(Path(fname)))
+        filepath = Path(fname)
+        if not filepath.is_file():
+            raise RuntimeError(f"No config file found: {fname}")
+        self.config = Dict(self.yaml.load(filepath))
 
     def get(self, keys, default=None, vartype=None, choices=[], wrapper=None) -> Any:
         """
