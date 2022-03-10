@@ -3,7 +3,7 @@
 import sys
 import os
 
-from paravision.utils import parse_cmdline_args, read_files
+from paravision.utils import parse_cmdline_args, read_files, parse_outer_args
 
 import importlib
 import subprocess
@@ -39,9 +39,10 @@ def run_command(module:str, args:list, nproc:int=1):
 
 def main():
 
-    args = parse_cmdline_args()
+    args, subargs = parse_outer_args()
 
     argv_sub = sys.argv[1:]
+    # argv_sub = subargs
 
     if args.chromatogram:
         run_command("paravision.chromatogram", argv_sub, args.nproc)

@@ -153,6 +153,34 @@ def read_files(files, filetype='pvtu'):
     
     return reader
 
+
+def parse_outer_args():
+    import argparse
+    from addict import Dict
+
+    ap = argparse.ArgumentParser()
+
+    g = ap.add_mutually_exclusive_group()
+    g.add_argument("-cg", "--chromatogram", choices=['full', 'shells'], help="Calculate chromatogram from given flat 2D surface of column. Requires --flow. See --shelltype.")
+    g.add_argument("--grm2d", nargs=2, type=int, help="Split into axial and radial sections and integrate scalars for fitting with 2D GRM. args: <ncol> <nrad>")
+    g.add_argument("--screenshot", action='store_true', help="Screenshot the given object")
+    g.add_argument("--bead-loading", action='store_true', help="Screenshot the given object")
+    g.add_argument("--radial-shell-integrate", choices=['Volume', 'Area', 'NoNorm'], const='NoNorm', nargs='?', help="Divide object radially and integrate. Choices indicate normalization method. See --nrad, --shelltype")
+    g.add_argument("--column-snapshot", action='store_true', help="Snapshot the column with a semi-transparent container")
+    g.add_argument("--column-snapshot-fast", action='store_true', help="Snapshot the column with a semi-transparent container")
+    g.add_argument("--volume-integral", choices=['Volume', 'Area', 'NoNorm'], help="Calculate AVERAGES using the volume integral. EXPERIMENTAL. TO BE REPLACED")
+    g.add_argument("--mass-flux", type=int, help="Calculate mass flux (or volume flux) at n slices")
+    g.add_argument("--animate", action='store_true', help="Create animation as series of pngs")
+    g.add_argument("--infogeneric", action='store_true', help="Dump mesh info for generic field meshes")
+    g.add_argument("--pipeline", nargs='+', help="Operations to be performed in pipe. NOT PARALLELIZED." )
+
+    ap.add_argument("-np", "--nproc", type=int, default=1, help="Screenshot the given object")
+
+    args, unknown =  ap.parse_known_args()
+    args = Dict(vars(args))
+
+    return args, unknown
+
 def parse_cmdline_args():
     """
         Parser for individual module commands
@@ -162,44 +190,16 @@ def parse_cmdline_args():
 
     ap = argparse.ArgumentParser()
 
-    COLORMAPS = [ 'Cool to Warm',
-            'Cool to Warm (Extended)',
-            'Black-Body Radiation',
-            'X Ray',
-            'Inferno (matplotlib)',
-            'Black, Blue and White',
-            'Blue Orange (divergent)',
-            'Viridis (matplotlib)',
-            'Gray and Red',
-            'Linear Green (Gr4L)',
-            'Cold and Hot',
-            'Blue - Green - Orange',
-            'Rainbow Desaturated',
-            'Yellow - Gray - Blue',
-            'Rainbow Uniform',
-            'Jet'
-            ]
-
     ap.add_argument("-c","--config", help="YAML config file")
 
     ap.add_argument("-cg", "--chromatogram", choices=['full', 'shells'], help="Calculate chromatogram from given flat 2D surface of column. Requires --flow. See --shelltype.")
     ap.add_argument("--grm2d", nargs=2, type=int, help="Split into axial and radial sections and integrate scalars for fitting with 2D GRM. args: <ncol> <nrad>")
-    ap.add_argument("--screenshot", action='store_true', help="Screenshot the given object")
-    ap.add_argument("--bead-loading", action='store_true', help="Screenshot the given object")
     ap.add_argument("--radial-shell-integrate", choices=['Volume', 'Area', 'NoNorm'], const='NoNorm', nargs='?', help="Divide object radially and integrate. Choices indicate normalization method. See --nrad, --shelltype")
-    ap.add_argument("--column-snapshot", action='store_true', help="Snapshot the column with a semi-transparent container")
-    ap.add_argument("--column-snapshot-fast", action='store_true', help="Snapshot the column with a semi-transparent container")
     ap.add_argument("--volume-integral", choices=['Volume', 'Area', 'NoNorm'], help="Calculate AVERAGES using the volume integral. EXPERIMENTAL. TO BE REPLACED")
-    ap.add_argument("--mass-flux", type=int, help="Calculate mass flux (or volume flux) at n slices")
-    ap.add_argument("--animate", action='store_true', help="Create animation as series of pngs")
-    ap.add_argument("--infogeneric", action='store_true', help="Dump mesh info for generic field meshes")
-
-    ap.add_argument("-np", "--nproc", type=int, default=1, help="Screenshot the given object")
 
     ap.add_argument("--integrate", choices=['Volume', 'Area', 'None'], help="Integrate and average the given Volume/Area")
     # ap.add_argument("--project", nargs=4, default=['clip', 'Plane', 0.5, "x"], help="Projection. <clip|slice> <Plane|Cylinder..> <origin> <x|y|z>" )
     ap.add_argument("--project", nargs=4, default=['none', 'Plane', 0.5, "x"], help="Projection. <clip|slice|none> <Plane|Cylinder..> <origin> <x|y|z>" )
-    ap.add_argument("--pipeline", nargs='+', help="Operations to be performed in pipe. NOT PARALLELIZED." )
 
     ap.add_argument("-st"  , "--shelltype", choices = ['EQUIDISTANT', 'EQUIVOLUME'], default='EQUIDISTANT', help="Shell discretization type. See --nrad")
     ap.add_argument("-nr"  , "--nrad", type=int, default=5, help="Radial discretization in particular plugins")
@@ -229,7 +229,10 @@ def parse_cmdline_args():
     ap.add_argument("-f", "--filetype", default='pvtu', choices=['xdmf', 'vtu', 'vtk', 'pvtu'], help="filetype: xdmf | vtu | vtk | pvtu")
     ap.add_argument("FILES", nargs='*', help="files..")
 
-    args = Dict(vars(ap.parse_args()))
+    # args = Dict(vars(ap.parse_args()))
+    print("NOTE: Only parsing known arguments!")
+    args, _ =  ap.parse_known_args()
+    args = Dict(vars(args))
 
     return args
 
