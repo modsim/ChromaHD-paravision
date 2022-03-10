@@ -9,6 +9,8 @@ def integrate(object, vars, normalize=None, timeArray=[]):
     timeKeeper = GetTimeKeeper()
     nts = len(timeArray) or 1
 
+    print(f"Integrating over time array: {timeArray}")
+
     # GetActiveViewOrCreate('RenderView')
 
     VolumeOrArea = []
