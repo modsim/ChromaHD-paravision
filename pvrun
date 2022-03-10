@@ -65,6 +65,8 @@ def main():
         run_command("paravision.animate", argv_sub, args.nproc)
     elif args.screenshot:
         run_command("paravision.screenshot", argv_sub, args.nproc)
+    elif args.infogeneric:
+        run_command("paravision.infogeneric", argv_sub, args.nproc)
     elif args.pipeline:
         ## NOTE: Pipeline operations below [EXPERIMENTAL]
         ## NOTE: Doesn't work in parallel!!

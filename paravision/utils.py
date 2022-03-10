@@ -192,6 +192,7 @@ def parse_cmdline_args():
     ap.add_argument("--volume-integral", choices=['Volume', 'Area', 'NoNorm'], help="Calculate AVERAGES using the volume integral. EXPERIMENTAL. TO BE REPLACED")
     ap.add_argument("--mass-flux", type=int, help="Calculate mass flux (or volume flux) at n slices")
     ap.add_argument("--animate", action='store_true', help="Create animation as series of pngs")
+    ap.add_argument("--infogeneric", action='store_true', help="Dump mesh info for generic field meshes")
 
     ap.add_argument("-np", "--nproc", type=int, default=1, help="Screenshot the given object")
 
@@ -219,6 +220,9 @@ def parse_cmdline_args():
 
     ap.add_argument("--flow", help="Flowfield pvtu/vtu file for use in chromatograms. May need --resample-flow.")
     ap.add_argument("--resample-flow", action='store_true', default=False, help="Flag to resample flowfield data using concentration mesh")
+
+    ap.add_argument("--packedbed", help="Packed bed mesh to use with --infogeneric")
+    ap.add_argument("--interstitial", help="Interstitial mesh to use with --infogeneric")
 
     ap.add_argument("-o", "--output-prefix", help="prefix for output filenames")
 
