@@ -74,7 +74,7 @@ def animate(reader, args):
         wPWF = GetOpacityTransferFunction(scalar)
         HideScalarBarIfNotNeeded(wLUT, view)
 
-        wLUT.ApplyPreset('Rainbow Uniform', True)
+        wLUT.ApplyPreset(args['colormap'], True)
 
         wLUT.RescaleTransferFunction(pd_range_min, pd_range_max)
 
