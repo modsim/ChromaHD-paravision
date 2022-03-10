@@ -148,7 +148,7 @@ def read_files(files, filetype='pvtu'):
     elif filetype == 'vtk':
         reader = LegacyVTKReader(FileNames=files)
     else:
-        print("Unsupported File Format!")
+        print(f"Unsupported File Format! ({filetype})")
         raise(ValueError)
     
     return reader
