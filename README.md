@@ -1,12 +1,11 @@
 # Paravision
 
-A rewrite of vis.py and paravis.py scripts into a more modular and reusable format. 
+A rewrite of vis.py and paravis.py scripts into a more modular and reusable format. Documentation in source.
 
 # Usage
 
 ```
-paravision --chromatogram Volume -np 48
-paravision --grm-2d --nrad --ncol
+pvrun --chromatogram full -np 48
 ```
 
 # Design
@@ -25,3 +24,10 @@ paravision --grm-2d --nrad --ncol
 ## Pipeline actions
 - project
 - screenshot
+
+## Notes and references
+- When colorby(none) doesn't work in some cases: https://discourse.paraview.org/t/colorby-rep-value-none-results-in-runtimeerror/6263
+
+## TODO
+- [TASK] incorporate confighandler fully. Use yaml configs, the commandline args are getting too long
+    - `pvrun --chromatogram full config.yaml`
