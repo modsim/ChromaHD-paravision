@@ -132,7 +132,8 @@ def read_files(files, filetype='pvtu'):
     else:
         fileExtensions = set([os.path.splitext(infile)[1] for infile in files])
         if len(fileExtensions) > 1:
-            print("Mixed File Formats Given!")
+            print(f"Mixed File Formats Given! {fileExtensions}")
+            print(f"files: {files}")
             sys.exit(-1)
         filetype = fileExtensions.pop().replace('.', '')
 
