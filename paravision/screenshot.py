@@ -115,5 +115,21 @@ def configure_scalar_bar(LUT, view, colorbar_config):
 
 if __name__=="__main__":
     args = parse_cmdline_args()
-    reader = read_files(args['FILES'], filetype=args['filetype'])
-    screenshot(reader, args)
+
+    if args['standalone']: 
+        readers = read_files(args['FILES'], filetype=args['filetype'], standalone=args['standalone'])
+
+        if args['append_datasets']:
+            appended = AppendDatasets(Input=readers)
+            screenshot(appended, args)
+        else: 
+            print("ERROR: Screenshotting for pure --standalone not yet fully supported. Please use along with --append-datasets")
+
+            # If the next two lines are uncommented, it will work, but the
+            # screenshots will get overwritten because filenames aren't unique
+
+            # for ireader in readers: 
+            #     screenshot(ireader, args)
+    else: 
+        reader = read_files(args['FILES'], filetype=args['filetype'], standalone=args['standalone'])
+        screenshot(reader, args)
