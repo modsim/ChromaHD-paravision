@@ -116,7 +116,17 @@ def get_cross_sections(reader, nSlice=1):
 
     return slices
 
-def read_files(files, filetype='pvtu'):
+def read_files(files, filetype='pvtu', standalone=False):
+    files, filetype = find_files(files, filetype)
+
+    if standalone:
+        readers = [ read_files_inner(ifile, filetype) for ifile in files ]
+        return readers
+    else:
+        reader =  read_files_inner(files, filetype)
+        return reader
+
+def find_files(files, filetype='pvtu'):
     import os
 
     if len(files) == 0:
@@ -139,7 +149,11 @@ def read_files(files, filetype='pvtu'):
 
     print("Reading files: ", files)
 
+    return files, filetype
+
+def read_files_inner(files, filetype):
     reader=None
+
     if filetype == 'xdmf':
         reader = XDMFReader(FileNames=files)
     elif filetype == 'vtu':
@@ -237,6 +251,10 @@ def parse_cmdline_args():
     ap.add_argument("-o", "--output-prefix", help="prefix for output filenames")
 
     ap.add_argument("-f", "--filetype", default='pvtu', choices=['xdmf', 'vtu', 'vtk', 'pvtu'], help="filetype: xdmf | vtu | vtk | pvtu")
+    ap.add_argument("--standalone", action='store_true', help="Read files as separate standalone objects, not part of time series.")
+
+    ap.add_argument("--append-datasets", action='store_true', help="Use AppendDatasets on standalone files before processing.")
+
     ap.add_argument("FILES", nargs='*', help="files..")
 
     args =  ap.parse_args()
