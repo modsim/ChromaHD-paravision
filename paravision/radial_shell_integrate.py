@@ -59,6 +59,9 @@ def radial_shell_integrate(reader, args):
 
         values = integrate(clipInner, scalars, normalize=args.radial_shell_integrate)[0]
 
+        Delete(clipInner)
+        Delete(clipOuter)
+
         print(values)
         appended.append(values)
 
