@@ -1,6 +1,12 @@
 from paraview.simple import *
 import struct
 from fuzzywuzzy import process, fuzz
+from pathlib import Path
+import importlib.util
+import csv
+import os
+import argparse
+from addict import Dict
 
 def appendToBin(arr, filename, f):
     with(open(filename, 'ab')) as output:
@@ -8,7 +14,6 @@ def appendToBin(arr, filename, f):
             output.write(struct.pack(f, i))
 
 def csvWriter(filename, x, y):
-    import csv
     with open(filename, 'w') as f:
         writer = csv.writer(f)
         writer.writerows(zip(x, y))
@@ -118,18 +123,33 @@ def get_cross_sections(reader, nSlice=1):
     return slices
 
 def find_preset(name):
-    """ Fuzzy find routine for presets
+    """ Fuzzy find routine for presets. 
+    Look in ScientificColourMaps7 if not found in ParaView and import
     Because the exact string for paraview preset colormap names is not easy to find
     """
-    # ImportPresets(filename='/home/jayghoshter/scratch/scientific-colormaps/bilbao_PARAVIEW.xml')
     presets = servermanager.vtkSMTransferFunctionPresets()
     presetNames = [ presets.GetPresetName(i) for i in range(presets.GetNumberOfPresets())]
     result = process.extractOne(name, presetNames, scorer=fuzz.token_set_ratio, score_cutoff=70)
-    print(f"Fuzzy found preset {result} for input '{name}'")
     if result: 
+        print(f"Fuzzy found preset {result} for input '{name}' in ParaView")
         return result[0]
     else: 
-        return None
+        # return None
+        print(f"Could not find the requested colormap preset ({name}) in ParaView. Looking in ScientificColourMaps7")
+        root = Path(importlib.util.find_spec('paravision').submodule_search_locations[0])
+        dir = root / "ScientificColourMaps7"
+        # files = [ file for file in os.listdir(dir) if file.endswith('xml') ]
+        files = list(dir.glob('*.xml'))
+        filenames = [ x.stem for x in files ]
+        result = process.extractOne(name, filenames, scorer=fuzz.token_set_ratio, score_cutoff=70)
+        if result:
+            print(f"Fuzzy found preset {result} for input '{name}' in ScientificColourMaps7")
+            print(f"Importing preset into ParaView for use")
+            ImportPresets(filename=str(dir / (result[0] + ".xml") ))
+            return result[0]
+        else: 
+            print(f"Could not find the requested colormap preset ({name}) in ParaView or ScientificColourMaps7")
+            return None
 
 
 def read_files(files, filetype='pvtu', standalone=False):
@@ -143,8 +163,6 @@ def read_files(files, filetype='pvtu', standalone=False):
         return reader
 
 def find_files(files, filetype='pvtu'):
-    import os
-
     if len(files) == 0:
         try:
             files = sorted([ file for file in os.listdir(".") if file.endswith(filetype) ], key=lambda x: int(x.split('.')[0].split('_')[-1]))
@@ -190,8 +208,6 @@ def parse_outer_args():
     """
     parser for the main script. 
     """
-    import argparse
-    from addict import Dict
 
     ap = argparse.ArgumentParser()
 
@@ -224,10 +240,6 @@ def parse_cmdline_args():
     To parse commandline args for a generic visualization job (e.g., screenshot.py). 
     Using/implementing them is the responsibility of the plugin itself.
     """
-
-    import argparse 
-    from addict import Dict
-
     ap = argparse.ArgumentParser()
 
     ap.add_argument("-c","--config", help="YAML config file")
