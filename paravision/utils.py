@@ -311,6 +311,8 @@ def parse_cmdline_args():
 
     ap.add_argument("--append-datasets", action='store_true', help="Use AppendDatasets on standalone files before processing.")
 
+    ap.add_argument("-cfc", "--colormap-fuzzy-cutoff", default=70, type=int, help="Fuzziness cutoff score for colormap names. 100 implies exact match.")
+
     ap.add_argument("FILES", nargs='*', help="files..")
 
     args =  ap.parse_args()

@@ -41,7 +41,7 @@ def screenshot(object, args):
         wPWF = GetOpacityTransferFunction(scalar)
         # HideScalarBarIfNotNeeded(wLUT, view)
 
-        wLUT.ApplyPreset(find_preset( args['colormap'] ), True)
+        wLUT.ApplyPreset(find_preset( args['colormap'] , args['colormap_fuzzy_cutoff']), True)
 
         if args.custom_color_range: 
             wLUT.RescaleTransferFunction(args.custom_color_range[0], args.custom_color_range[1])
