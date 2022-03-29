@@ -61,6 +61,7 @@ in pkgs.mkShell rec {
                 python3Packages.GitPython
                 python3Packages.matplotlib
                 python3Packages.addict
+                python3Packages.fuzzywuzzy
                 which
             ];
 

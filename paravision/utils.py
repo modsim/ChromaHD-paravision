@@ -1,5 +1,6 @@
 from paraview.simple import *
 import struct
+from fuzzywuzzy import process, fuzz
 
 def appendToBin(arr, filename, f):
     with(open(filename, 'ab')) as output:
@@ -115,6 +116,20 @@ def get_cross_sections(reader, nSlice=1):
         slices.append(projection)
 
     return slices
+
+def find_preset(name):
+    """ Fuzzy find routine for presets
+    Because the exact string for paraview preset colormap names is not easy to find
+    """
+    presets = servermanager.vtkSMTransferFunctionPresets()
+    presetNames = [ presets.GetPresetName(i) for i in range(presets.GetNumberOfPresets())]
+    result = process.extractOne(name, presetNames, scorer=fuzz.token_set_ratio, score_cutoff=70)
+    print(f"Fuzzy found preset {result} for input '{name}'")
+    if result: 
+        return result[0]
+    else: 
+        return None
+
 
 def read_files(files, filetype='pvtu', standalone=False):
     files, filetype = find_files(files, filetype)
@@ -265,4 +280,5 @@ def parse_cmdline_args():
     # args = Dict(vars(args))
 
     return args
+
 
