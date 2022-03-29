@@ -1,6 +1,7 @@
 from paraview.simple import *
 from paravision.utils import view_handler
 from paravision.utils import parse_cmdline_args, read_files
+from paravision.utils import find_preset
 from paravision.project import project
 
 from paravision import ConfigHandler
@@ -40,7 +41,7 @@ def screenshot(object, args):
         wPWF = GetOpacityTransferFunction(scalar)
         # HideScalarBarIfNotNeeded(wLUT, view)
 
-        wLUT.ApplyPreset(args['colormap'], True)
+        wLUT.ApplyPreset(find_preset( args['colormap'] ), True)
 
         if args.custom_color_range: 
             wLUT.RescaleTransferFunction(args.custom_color_range[0], args.custom_color_range[1])
