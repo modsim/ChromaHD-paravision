@@ -122,14 +122,18 @@ def get_cross_sections(reader, nSlice=1):
 
     return slices
 
-def find_preset(name):
+def find_preset(name, score_cutoff=70):
     """ Fuzzy find routine for presets. 
     Look in ScientificColourMaps7 if not found in ParaView and import
     Because the exact string for paraview preset colormap names is not easy to find
     """
+    # TODO: Doesn't work great when you have, e.g., batlow and batlowW outside ParaView. 
+    # whichever is loaded the other will always match the first one loaded, and
+    # not find the second one outside paraview.
+
     presets = servermanager.vtkSMTransferFunctionPresets()
     presetNames = [ presets.GetPresetName(i) for i in range(presets.GetNumberOfPresets())]
-    result = process.extractOne(name, presetNames, scorer=fuzz.token_set_ratio, score_cutoff=70)
+    result = process.extractOne(name, presetNames, scorer=fuzz.token_set_ratio, score_cutoff=score_cutoff)
     if result: 
         print(f"Fuzzy found preset {result} for input '{name}' in ParaView")
         return result[0]
@@ -141,7 +145,7 @@ def find_preset(name):
         dir = root / "ScientificColourMaps7"
         files = list(dir.glob('*.xml'))
         filenames = [ x.stem for x in files ]
-        result = process.extractOne(name, filenames, scorer=fuzz.token_set_ratio, score_cutoff=70)
+        result = process.extractOne(name, filenames, scorer=fuzz.token_set_ratio, score_cutoff=score_cutoff)
         if result:
             print(f"Fuzzy found preset {result} for input '{name}' in ScientificColourMaps7")
             print(f"Importing preset into ParaView for use")
@@ -151,6 +155,17 @@ def find_preset(name):
             print(f"Could not find the requested colormap preset ({name}) in ParaView or ScientificColourMaps7")
             return None
 
+def load_scientific_colormaps():
+    """ Load all presets in ScientificColourMaps7
+    
+    Using this should avoid all the misses thanks to fuzziness in the above function
+    """
+    root = Path(importlib.util.find_spec('paravision').submodule_search_locations[0])
+    dir = root / "ScientificColourMaps7"
+    files = list(dir.glob('*.xml'))
+    filenames = [ x.stem for x in files ]
+    for filename in filenames:
+        preset = find_preset(filename, score_cutoff=100)
 
 def read_files(files, filetype='pvtu', standalone=False):
     files, filetype = find_files(files, filetype)
@@ -227,8 +242,13 @@ def parse_outer_args():
 
     ap.add_argument("-np", "--nproc", type=int, default=1, help="Screenshot the given object")
 
+    ap.add_argument("-lsm", "--load-scientific-colormaps", action='store_true', help="Load all the ScientificColourMaps7 presets into ParaView before starting.")
+
     args, unknown =  ap.parse_known_args()
     args = Dict(vars(args))
+
+    if args['load_scientific_colormaps']: 
+        load_scientific_colormaps()
 
     return args, unknown
 
