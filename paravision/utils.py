@@ -136,9 +136,9 @@ def find_preset(name):
     else: 
         # return None
         print(f"Could not find the requested colormap preset ({name}) in ParaView. Looking in ScientificColourMaps7")
+        # NOTE: probably a better way to do this
         root = Path(importlib.util.find_spec('paravision').submodule_search_locations[0])
         dir = root / "ScientificColourMaps7"
-        # files = [ file for file in os.listdir(dir) if file.endswith('xml') ]
         files = list(dir.glob('*.xml'))
         filenames = [ x.stem for x in files ]
         result = process.extractOne(name, filenames, scorer=fuzz.token_set_ratio, score_cutoff=70)
