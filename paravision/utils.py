@@ -121,6 +121,7 @@ def find_preset(name):
     """ Fuzzy find routine for presets
     Because the exact string for paraview preset colormap names is not easy to find
     """
+    # ImportPresets(filename='/home/jayghoshter/scratch/scientific-colormaps/bilbao_PARAVIEW.xml')
     presets = servermanager.vtkSMTransferFunctionPresets()
     presetNames = [ presets.GetPresetName(i) for i in range(presets.GetNumberOfPresets())]
     result = process.extractOne(name, presetNames, scorer=fuzz.token_set_ratio, score_cutoff=70)
@@ -184,7 +185,11 @@ def read_files_inner(files, filetype):
     return reader
 
 
+# TODO: Move into the main script
 def parse_outer_args():
+    """
+    parser for the main script. 
+    """
     import argparse
     from addict import Dict
 
@@ -211,10 +216,15 @@ def parse_outer_args():
 
     return args, unknown
 
+# TODO: remove plugin names from args
+# TODO: remove plugin specific args (like --flow)
 def parse_cmdline_args():
+    """ Parser for individual module commands
+
+    To parse commandline args for a generic visualization job (e.g., screenshot.py). 
+    Using/implementing them is the responsibility of the plugin itself.
     """
-        Parser for individual module commands
-    """
+
     import argparse 
     from addict import Dict
 
@@ -255,7 +265,6 @@ def parse_cmdline_args():
     ap.add_argument("-z", "--zoom", type=float, default=1, help="Zoom (camera.dolly) value for view")
     ap.add_argument("-v", "--view", nargs=2, default=["-x",  "-y"], help="Set view: target, viewup. Use +x, -z notation.")
     ap.add_argument("-g", "--geometry", nargs=2, type=int, default=[1024, 768], help="Animation geometry size")
-
 
     ap.add_argument("--flow", help="Flowfield pvtu/vtu file for use in chromatograms. May need --resample-flow.")
     ap.add_argument("--resample-flow", action='store_true', default=False, help="Flag to resample flowfield data using concentration mesh")
