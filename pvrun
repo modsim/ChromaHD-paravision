@@ -77,8 +77,8 @@ def main():
     args, subargs = parse_outer_args()
     print(args, subargs)
 
-    argv_sub = sys.argv[1:]
-    # argv_sub = subargs
+    # argv_sub = sys.argv[1:]
+    argv_sub = subargs
 
     # TODO: https://stackoverflow.com/questions/27529610/call-function-based-on-argparse
 

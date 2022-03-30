@@ -1,6 +1,6 @@
 from paraview.simple import *
 from paravision.utils import view_handler
-from paravision.utils import parse_cmdline_args, read_files
+from paravision.utils import read_files
 from paravision.utils import configure_scalar_bar
 from paravision.utils import find_preset
 from paravision.project import project
@@ -44,9 +44,7 @@ def screenshot(object, args):
 
         wLUT.ApplyPreset(find_preset( args['colormap'] , args['colormap_fuzzy_cutoff']), True)
 
-        if args.custom_color_range: 
-            wLUT.RescaleTransferFunction(args.custom_color_range[0], args.custom_color_range[1])
-        elif args.color_range_method == 'auto': 
+        if args.color_range_method == 'auto': 
             display.RescaleTransferFunctionToDataRange(False, True)
         elif args.color_range_method == 'startzero': 
             crange = pd.GetArray(scalar).GetRange()
@@ -57,10 +55,7 @@ def screenshot(object, args):
         elif args.color_range_method == 'custom': 
             wLUT.RescaleTransferFunction(args.custom_color_range[0], args.custom_color_range[1])
 
-        if args['config']: 
-            config = ConfigHandler()
-            config.read(args['config'])
-            configure_scalar_bar(wLUT, view, config.config.ColorBar)
+        configure_scalar_bar(wLUT, view, config.config.ColorBar)
 
         UpdateScalarBars()
         display.SetScalarBarVisibility(view, args['show_scalar_bar'])
@@ -72,7 +67,9 @@ def screenshot(object, args):
 
 
 if __name__=="__main__":
-    args = parse_cmdline_args()
+
+    config = ConfigHandler()
+    args = config.parse_config_and_cmdline_args()
 
     if args['standalone']: 
         readers = read_files(args['FILES'], filetype=args['filetype'], standalone=args['standalone'])
