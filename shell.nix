@@ -17,6 +17,18 @@ let
 
     name = "paravision";
 
+
+    my-python = pkgs.python3;
+    python-with-my-packages = my-python.withPackages (p: with p; [
+        numpy
+        rich
+        ruamel-yaml
+        GitPython
+        matplotlib
+        addict
+        fuzzywuzzy
+    ]);
+
     ## Override paraview to run headless because openGL in nix can be a pain
     ## for non-NixOS.
     paraview = pkgs.paraview.overrideAttrs ( oldAttrs: rec {
@@ -48,28 +60,29 @@ let
 in pkgs.mkShell rec {
     inherit name;
 
-    paravision = pkgs.python3Packages.buildPythonPackage{
-        pname = name;
-        version = "0.1";
-
-        src = ./.;
-
-        propagatedBuildInputs = with pkgs; [
-                python3Packages.numpy
-                python3Packages.rich
-                python3Packages.ruamel-yaml
-                python3Packages.GitPython
-                python3Packages.matplotlib
-                python3Packages.addict
-                python3Packages.fuzzywuzzy
-                which
-            ];
-
-        doCheck = false;
-    };
+    # paravision = pkgs.python3Packages.buildPythonPackage{
+    #     pname = name;
+    #     version = "0.1";
+    #
+    #     src = ./.;
+    #
+    #     propagatedBuildInputs = with pkgs; [
+    #             python3Packages.numpy
+    #             python3Packages.rich
+    #             python3Packages.ruamel-yaml
+    #             python3Packages.GitPython
+    #             python3Packages.matplotlib
+    #             python3Packages.addict
+    #             python3Packages.fuzzywuzzy
+    #             which
+    #         ];
+    #
+    #     doCheck = false;
+    # };
 
     buildInputs = with pkgs; [
-        paravision
+        # paravision
+        python-with-my-packages
         paraview
         openssh # For something related to openmpi/MCA/ORTE
     ];
@@ -79,7 +92,8 @@ in pkgs.mkShell rec {
     # See https://pip.pypa.io/en/stable/user_guide/#environment-variables.
     export PIP_PREFIX=$(pwd)/_build/pip_packages
     export PYTHONPATH="$PIP_PREFIX/${pkgs.python3.sitePackages}:$PYTHONPATH"
-    # export PYTHONPATH="${paraview}/lib/python3.9/site-packages:$PYTHONPATH"
+    export PYTHONPATH="${paraview}/lib/python3.9/site-packages:$PYTHONPATH"
+    PYTHONPATH=${python-with-my-packages}/${python-with-my-packages.sitePackages}:$PYTHONPATH
     export PATH="$PIP_PREFIX/bin:$PATH"
     unset SOURCE_DATE_EPOCH
   '';
