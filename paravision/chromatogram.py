@@ -1,7 +1,12 @@
-from paravision.utils import csvWriter, parse_cmdline_args, read_files
+from paravision.utils import csvWriter, read_files
 from paravision.integrate import integrate
 
 from paraview.simple import *
+from paravision import ConfigHandler
+
+import argparse
+from addict import Dict
+from rich import print, print_json
 
 def chromatogram(reader, args):
     """
@@ -10,8 +15,8 @@ def chromatogram(reader, args):
         Resampling is extremely slow.
     """
 
-    for key in args:
-        print(key + ': ', args[key])
+    # for key in args:
+    #     print(key + ': ', args[key])
 
     args.scalars = args.scalars or reader.PointArrayStatus
     timeArray = reader.TimestepValues
@@ -30,7 +35,7 @@ def chromatogram(reader, args):
     integrated_flowrate = integrate(flow, ['scalar_2'], normalize=None, timeArray=[])
     print("Flowrate:", integrated_flowrate)
 
-    if args['chromatogram'] == 'full':
+    if args['type'] == 'full':
         # NOTE: Assumes input is 2D output of extractRNG applied on the outlet
         # conc * velocity_z
         cu = PythonCalculator(Input=[reader, flow])
@@ -41,7 +46,7 @@ def chromatogram(reader, args):
 
         csvWriter('chromatogram.csv', reader.TimestepValues, chromatogram)
 
-    elif args.chromatogram == 'shells': 
+    elif args.type == 'shells': 
         nRegions = args.nrad
         shellType = args.shelltype
 
@@ -150,9 +155,38 @@ def chromatogram(reader, args):
             csvWriter("shell_{i}.csv".format(i=region), timeArray, integrated_over_time[region])
 
 
+def chromatogram_parser(args, local_args_list):
 
+    ap = argparse.ArgumentParser()
+
+    ap.add_argument("--type", choices=['full', 'shells'], help="Chromatogram for full area or shells")
+    ap.add_argument("--flow", help="Flowfield pvtu/vtu file for use in chromatograms. May need --resample-flow.")
+    ap.add_argument("--resample-flow", action=argparse.BooleanOptionalAction, default=None, help="Flag to resample flowfield data using concentration mesh")
+    ap.add_argument("-nr", "--nrad", type=int, help="Radial discretization size for shell chromatograms. Also see --shelltype")
+    ap.add_argument("-st", "--shelltype", choices = ['EQUIDISTANT', 'EQUIVOLUME'], help="Radial shell discretization type. See --nrad")
+
+    ap.add_argument("FILES", nargs='*', help="files..")
+
+    print(local_args_list)
+
+    local_args = ap.parse_args(local_args_list)
+    local_args = Dict(vars(local_args))
+
+    print_json(data=local_args)
+
+    args.update([ (k,v) for k,v in local_args.items() if v is not None])
+
+    return args
 
 if __name__=="__main__":
-    args = parse_cmdline_args()
+    config = ConfigHandler()
+    args, local_args_list = config.parse_config_and_cmdline_args()
+    args = chromatogram_parser(args, local_args_list)
+
+    print("[bold yellow]Final set of args:[/bold yellow]")
+    print_json(data=args)
+
     reader = read_files(args['FILES'], filetype=args['filetype'])
     chromatogram(reader, args)
+
+

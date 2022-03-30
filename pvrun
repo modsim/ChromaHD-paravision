@@ -10,6 +10,8 @@ import subprocess
 import argparse
 from addict import Dict
 
+from rich import print, print_json
+
 def parse_outer_args():
     """
     parser for the main script. 
@@ -18,7 +20,7 @@ def parse_outer_args():
     ap = argparse.ArgumentParser()
 
     g = ap.add_mutually_exclusive_group()
-    g.add_argument("-cg", "--chromatogram", choices=['full', 'shells'], help="Calculate chromatogram from given flat 2D surface of column. Requires --flow. See --shelltype.")
+    g.add_argument("-cg", "--chromatogram", action='store_true', help="Calculate chromatogram from given flat 2D surface of column. Requires --flow. See --shelltype.")
     g.add_argument("--grm2d", nargs=2, type=int, help="Split into axial and radial sections and integrate scalars for fitting with 2D GRM. args: <ncol> <nrad>")
     g.add_argument("--screenshot", action='store_true', help="Screenshot the given object")
     g.add_argument("--bead-loading", action='store_true', help="Screenshot the given object")
@@ -36,6 +38,7 @@ def parse_outer_args():
     ap.add_argument("-lsm", "--load-scientific-colormaps", action='store_true', help="Load all the ScientificColourMaps7 presets into ParaView before starting.")
 
     args, unknown =  ap.parse_known_args()
+
     args = Dict(vars(args))
 
     if args['load_scientific_colormaps']: 
@@ -75,7 +78,8 @@ def run_command(module:str, args:list, nproc:int=1):
 def main():
 
     args, subargs = parse_outer_args()
-    print(args, subargs)
+    print_json(data=args)
+    print(subargs)
 
     # argv_sub = sys.argv[1:]
     argv_sub = subargs
