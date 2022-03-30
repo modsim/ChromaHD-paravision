@@ -8,6 +8,8 @@ import os
 import argparse
 from addict import Dict
 
+from rich import print
+
 def appendToBin(arr, filename, f):
     with(open(filename, 'ab')) as output:
         for i in arr:
@@ -168,6 +170,11 @@ def load_scientific_colormaps():
         preset = find_preset(filename, score_cutoff=100)
 
 def read_files(files, filetype='pvtu', standalone=False):
+    """ Read the given list of files 
+
+    standalone: bool => if true, reads files individually instead of serially
+    filetype: default filetype to read. If files is [], look for files of this extension in current dir.
+    """
     files, filetype = find_files(files, filetype)
 
     if standalone:
