@@ -3,10 +3,45 @@
 import sys
 import os
 
-from paravision.utils import parse_cmdline_args, read_files, parse_outer_args
+from paravision.utils import read_files
 
 import importlib
 import subprocess
+import argparse
+from addict import Dict
+
+def parse_outer_args():
+    """
+    parser for the main script. 
+    """
+
+    ap = argparse.ArgumentParser()
+
+    g = ap.add_mutually_exclusive_group()
+    g.add_argument("-cg", "--chromatogram", choices=['full', 'shells'], help="Calculate chromatogram from given flat 2D surface of column. Requires --flow. See --shelltype.")
+    g.add_argument("--grm2d", nargs=2, type=int, help="Split into axial and radial sections and integrate scalars for fitting with 2D GRM. args: <ncol> <nrad>")
+    g.add_argument("--screenshot", action='store_true', help="Screenshot the given object")
+    g.add_argument("--bead-loading", action='store_true', help="Screenshot the given object")
+    g.add_argument("--radial-shell-integrate", choices=['Volume', 'Area', 'NoNorm'], const='NoNorm', nargs='?', help="Divide object radially and integrate. Choices indicate normalization method. See --nrad, --shelltype")
+    g.add_argument("--column-snapshot", action='store_true', help="Snapshot the column with a semi-transparent container")
+    g.add_argument("--column-snapshot-fast", action='store_true', help="Snapshot the column with a semi-transparent container")
+    g.add_argument("--volume-integral", choices=['Volume', 'Area', 'NoNorm'], help="Calculate AVERAGES using the volume integral. EXPERIMENTAL. TO BE REPLACED")
+    g.add_argument("--mass-flux", type=int, help="Calculate mass flux (or volume flux) at n slices")
+    g.add_argument("--animate", action='store_true', help="Create animation as series of pngs")
+    g.add_argument("--infogeneric", action='store_true', help="Dump mesh info for generic field meshes")
+    g.add_argument("--pipeline", nargs='+', help="Operations to be performed in pipe. NOT PARALLELIZED." )
+
+    ap.add_argument("-np", "--nproc", type=int, default=1, help="Screenshot the given object")
+
+    ap.add_argument("-lsm", "--load-scientific-colormaps", action='store_true', help="Load all the ScientificColourMaps7 presets into ParaView before starting.")
+
+    args, unknown =  ap.parse_known_args()
+    args = Dict(vars(args))
+
+    if args['load_scientific_colormaps']: 
+        load_scientific_colormaps()
+
+    return args, unknown
 
 
 def run_command(module:str, args:list, nproc:int=1):
@@ -40,9 +75,12 @@ def run_command(module:str, args:list, nproc:int=1):
 def main():
 
     args, subargs = parse_outer_args()
+    print(args, subargs)
 
     argv_sub = sys.argv[1:]
     # argv_sub = subargs
+
+    # TODO: https://stackoverflow.com/questions/27529610/call-function-based-on-argparse
 
     if args.chromatogram:
         run_command("paravision.chromatogram", argv_sub, args.nproc)
