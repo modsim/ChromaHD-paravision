@@ -7,10 +7,10 @@ from paravision.project import project
 
 from paravision import ConfigHandler
 
+from rich import print, print_json
+
 def screenshot(object, args):
     """ Screenshot a given object with a given projection"""
-    for key in args:
-        print(key + ': ', args[key])
 
     args.scalars = args.scalars or object.PointArrayStatus
     # args.scalars = args.scalars 
@@ -38,7 +38,7 @@ def screenshot(object, args):
         view_handler(args['view'], args['zoom'])
         # view.Update()
 
-        wLUT = GetColorTransferFunction(scalar)
+        wLUT:Proxy = GetColorTransferFunction(scalar)
         wPWF = GetOpacityTransferFunction(scalar)
         # HideScalarBarIfNotNeeded(wLUT, view)
 
@@ -55,7 +55,7 @@ def screenshot(object, args):
         elif args.color_range_method == 'custom': 
             wLUT.RescaleTransferFunction(args.custom_color_range[0], args.custom_color_range[1])
 
-        configure_scalar_bar(wLUT, view, config.config.ColorBar)
+        configure_scalar_bar(wLUT, view, config.get('ColorBar'))
 
         UpdateScalarBars()
         display.SetScalarBarVisibility(view, args['show_scalar_bar'])
@@ -70,6 +70,9 @@ if __name__=="__main__":
 
     config = ConfigHandler()
     args, _ = config.parse_config_and_cmdline_args()
+
+    print("[bold yellow]Final set of args:[/bold yellow]")
+    print_json(data=args)
 
     if args['standalone']: 
         readers = read_files(args['FILES'], filetype=args['filetype'], standalone=args['standalone'])
