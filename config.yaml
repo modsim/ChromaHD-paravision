@@ -1,34 +1,51 @@
+shelltype: EQUIDISTANT
+nrad: 5
+colormap: Viridis (matplotlib)
+show_axis: True
+show_scalar_bar: True
+display_representation: Surface
+color_range_method: auto
+custom_color_range: [0.0, 1.0]
+view: ['-x', '-y']
+geometry: [ 1440, 2560]
+filetype: pvtu
+# output_prefix: None
+project: 
+  - clip
+  - Plane
+  - 0.5
+  - x
 ColorBar:
-  AutoOrient: 1
-  Orientation: 'Vertical'
-  WindowLocation: 'LowerRightCorner'
-  Position: [0.89, 0.02]
+  AutoOrient: 0
+  Orientation: 'Horizontal'
+  WindowLocation: 'Upper Center'
+  Position: [0.29, 0.02]
   Title: ''
   ComponentTitle: ''
   TitleJustification: 'Centered'
   HorizontalTitle: 0
   TitleOpacity: 1.0
-  TitleFontFamily: 'Arial'
+  TitleFontFamily: 'Courier'
   TitleFontFile: ''
   TitleBold: 0
   TitleItalic: 0
   TitleShadow: 0
-  TitleFontSize: 16
+  TitleFontSize: 64
   TitleColor: [0.0, 0.0, 0.0]
   LabelOpacity: 1.0
-  LabelFontFamily: 'Arial'
+  LabelFontFamily: 'Courier'
   LabelFontFile: ''
   LabelBold: 0
   LabelItalic: 0
   LabelShadow: 0
-  LabelFontSize: 16
+  LabelFontSize: 64
   LabelColor: [0.0, 0.0, 0.0]
   AutomaticLabelFormat: 1
   LabelFormat: '%-#6.3g'
   DrawTickMarks: 1
   DrawTickLabels: 1
   UseCustomLabels: 0
-  CustomLabels: []
+  CustomLabels: [0.0]
   AddRangeLabels: 1
   RangeLabelFormat: '%-#6.1e'
   DrawAnnotations: 1
@@ -38,5 +55,5 @@ ColorBar:
   NanAnnotation: 'NaN'
   TextPosition: 'Ticks right/top, annotations left/bottom'
   ReverseLegend: 0
-  ScalarBarThickness: 16
+  ScalarBarThickness: 25
   ScalarBarLength: 0.33

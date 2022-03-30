@@ -24,7 +24,7 @@ Just run `nix-shell /path/to/shell.nix` to install dependencies (mainly paraview
 Examples: 
 ```
 # Calculate chromatogram (optional flag to resample flow data on conc mesh)
-pvrun --chromatogram full <conc.pvtu> --flow <flow.pvtu> [--flow-resample]
+pvrun --chromatogram <conc.pvtu> --flow <flow.pvtu> [--flow-resample] --type full
 
 # Save a screenshot of the domain after projection for scalar_0
 pvrun --screenshot --project clip Plane 0.5 x -s scalar_0
@@ -32,6 +32,8 @@ pvrun --screenshot --project clip Plane 0.5 x -s scalar_0
 # In case of a parallel, pvbatch run
 pvrun -np 64 --volume-integral
 # The above command is equivalent to mpiexec -np 64 /path/to/volume-integral.py
+
+pvrun -np64 --column-snapshot <pvtu>
 ```
 
 # Design
@@ -40,32 +42,46 @@ There are some top-level flags to perform top-level actions such as taking a scr
 
 The `pvrun` script takes user input, processes the top-level flags and runs the corresponding action script in a `subprocess.run()` call, passing on the environment variables.
 
-Every top-level script looks for `.pvtu` files in the current directory unless files are specified on the CLI.
-
 Currently, `mpirun/mpiexec` is the only possible MPI runner.
 
+## Configuration
+- Defaults are specified in the app (configHandler.py)
+- if `--config config.yaml` is passed, the file is loaded
+- then commandline args are processed. If any are passed, they overwrite the previous args from config/default.
+- CLI args parsing is done in 3 steps:
+    - pvrun: top level args
+    - plugin: general args parsing
+    - plugin: specific args parsing
+
+Here plugin refers to the top-level scripts that perform some action.
+
 ## Top level actions
-- `--chromatogram ['full', 'shells']`
+- `--chromatogram`
 - `--animate`
 - `--screenshot`
 - `--column-snapshot`
 - `--column-snapshot_fast`
 - `--volume-integral`
 - `--bead-loading`
-- `--radial-shell-integrate <number_of_regions>`
-- `--mass-flux <number_of_slices>`
-- `--shell_chromatograms <number_of_regions>`
+- `--radial-shell-integrate`
+- `--mass-flux`
+- `--shell_chromatograms`
 
 ## Pipeline actions
 - project
 - screenshot
 
-## Notes and references
+# Notes and references
 - When colorby(none) doesn't work in some cases: https://discourse.paraview.org/t/colorby-rep-value-none-results-in-runtimeerror/6263
 - [ParaView, OpenGL, OSMESA](https://www.paraview.org/Wiki/ParaView/ParaView_And_Mesa_3D)
 - [More about ParaView rendering backends](https://kitware.github.io/paraview-docs/v5.9.0/cxx/Offscreen.html)
 - There's a change to the ParaView threshold range API between 5.9 and 5.10. 
+- pvpython 5.10.0 messes with passed short args. Makes `-sb` into `--sb` and ruins things. Pass the long args to circumvent.
+- `--colormap` accepts a string that will be fuzzymatched to existing colormaps in ParaView, and then in ScientificColourMaps7
 
-## TODO
-- [TASK] incorporate confighandler fully. Use yaml configs, the commandline args are getting too long
-    - `pvrun --chromatogram full config.yaml`
+# Colormaps
+For chromatography, we need a colormap that has dark colors representing higher concentration. Usual colormaps go with increasing lightness. Also, for x-y flow, we need a diverging map, and then linear maps for everything else. So in publication, we need matching diverging and linear maps.
+
+- `vik` (diverging) and `bilbao` (linear) match
+- `BrBG` (div) and `Linear YGB` (lin) match
+- `Rainbow Uniform` is a diverging map around yellow. It looks good for our flow sims because it shows hotspots clearly thanks to having multiple hues. Similarly, for our mass transfer sims it shows the concentration fronts very well.
