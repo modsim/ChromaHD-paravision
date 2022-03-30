@@ -27,7 +27,7 @@ def parse_outer_args():
     g.add_argument("--radial-shell-integrate", action='store_true', help="Divide object radially and integrate. Choices indicate normalization method. See --nrad, --shelltype")
     g.add_argument("--column-snapshot", action='store_true', help="Snapshot the column with a semi-transparent container")
     g.add_argument("--column-snapshot-fast", action='store_true', help="Snapshot the column with a semi-transparent container")
-    g.add_argument("--volume-integral", choices=['Volume', 'Area', 'NoNorm'], help="Calculate AVERAGES using the volume integral. EXPERIMENTAL. TO BE REPLACED")
+    g.add_argument("--volume-integral", action='store_true', help="Integrate over volume. Can use --normalize to calculate \"averages\"")
     g.add_argument("--mass-flux", type=int, help="Calculate mass flux (or volume flux) at n slices")
     g.add_argument("--animate", action='store_true', help="Create animation as series of pngs")
     g.add_argument("--infogeneric", action='store_true', help="Dump mesh info for generic field meshes")
