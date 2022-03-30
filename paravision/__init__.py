@@ -5,7 +5,6 @@ __author__ = 'Jayghosh Rao'
 __credits__ = 'FZJ/IBG-1/ModSim'
 
 # Imports
-from .chromatogram import chromatogram
 from .configHandler import ConfigHandler
 
 from . import utils
