@@ -6,6 +6,8 @@ from paravision.utils import find_preset
 from paravision.project import project
 
 from paravision import ConfigHandler
+import argparse
+from addict import Dict
 
 from rich import print, print_json
 
@@ -62,14 +64,33 @@ def screenshot(object, args):
         # view.Update()
         # display.UpdatePipeline()
 
-        SaveScreenshot(f'screenshot_{args.output_prefix}_{scalar}.png', view, ImageResolution=args['geometry'], TransparentBackground=1)
+        screenshot_filename = f'screenshot_{args.output_prefix}_{scalar}.png'
+        print(f'Saving screenshot to file: {screenshot_filename}')
+        SaveScreenshot(screenshot_filename, view, ImageResolution=args['geometry'], TransparentBackground=1)
         Hide(display, view)
 
+def screenshot_parser(args, local_args_list):
+
+    ap = argparse.ArgumentParser()
+
+    ap.add_argument("FILES", nargs='*', help="files..")
+
+    print(local_args_list)
+
+    local_args = ap.parse_args(local_args_list)
+    local_args = Dict(vars(local_args))
+
+    print_json(data=local_args)
+
+    args.update([ (k,v) for k,v in local_args.items() if v is not None])
+
+    return args
 
 if __name__=="__main__":
 
     config = ConfigHandler()
-    args, _ = config.parse_config_and_cmdline_args()
+    args, local_args_list = config.parse_config_and_cmdline_args()
+    args = screenshot_parser(args, local_args_list)
 
     print("[bold yellow]Final set of args:[/bold yellow]")
     print_json(data=args)
