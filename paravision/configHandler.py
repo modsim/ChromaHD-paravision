@@ -19,8 +19,6 @@ import argparse
 
 from typing import Any
 
-from rich import print as rprint
-
 class ConfigHandler:
 
     def __init__(self):
@@ -31,8 +29,6 @@ class ConfigHandler:
         self.config = Dict({
             'integrate': None,
             'project': ['none', 'Plane', 0.5, 'x'],
-            'shelltype': 'EQUIDISTANT',
-            'nrad': 5,
             'colormap': 'viridis',
             'colormap_fuzzy_cutoff': 70,
             'show_axis': False,
@@ -49,6 +45,17 @@ class ConfigHandler:
             'standalone': False,
             'append_datasets': False,
             'FILES': [],
+
+            'type': None,
+            'flow': None,
+            'resample_flow': False,
+            'shelltype': 'EQUIDISTANT',
+            'nrad': 5,
+            'ncol': 10,
+            'normalize': None,
+            'packedbed': None,
+            'interstitial': None
+
             })
 
     def read(self, fname):
@@ -89,11 +96,13 @@ class ConfigHandler:
         return value
 
     def get_config_file(self):
+        """ Get the config file from commandline args
+        Returns config filename and the rest of argslist
+        """
         ap = argparse.ArgumentParser()
 
         ap.add_argument("-c","--config", help="YAML config file")
 
-        print("NOTE: Only parsing known arguments!")
         args, unknown =  ap.parse_known_args()
 
         return args.config, unknown
@@ -102,7 +111,11 @@ class ConfigHandler:
         """ parse commandline args and update config
 
         NOTE: Make sure to set the default (especially bool types) to None.
-        This makes it easier to update the config with args, allowing to switch bool flags on and off using cmdline
+        This makes it easier to update the config with args, allowing to switch
+        bool flags on and off using cmdline
+
+        NOTE: Make sure that there are no positional args. Since we parse some
+        stuff later, unknowns may get mixed up with positionals.
         """
 
         ap = argparse.ArgumentParser()
@@ -136,11 +149,6 @@ class ConfigHandler:
         ap.add_argument("--standalone", action=argparse.BooleanOptionalAction, default=None, help="Read files as separate standalone objects, not part of time series.")
         ap.add_argument("--append-datasets", action=argparse.BooleanOptionalAction, default=None, help="Use AppendDatasets on standalone files before processing.")
 
-        ap.add_argument("FILES", nargs='*', help="files..")
-
-        ## NOTE: Specific to chromatogram
-        # ap.add_argument("--flow", help="Flowfield pvtu/vtu file for use in chromatograms. May need --resample-flow.")
-        # ap.add_argument("--resample-flow", action=argparse.BooleanOptionalAction, default=None, help="Flag to resample flowfield data using concentration mesh")
 
         ## NOTE:  Specific to radial types: grm2d and radial_shell_integrate etc
         # ap.add_argument("-st"  , "--shelltype", choices = ['EQUIDISTANT', 'EQUIVOLUME'], help="Shell discretization type. See --nrad")
@@ -150,20 +158,26 @@ class ConfigHandler:
         # ap.add_argument("--packedbed", help="Packed bed mesh to use with --infogeneric")
         # ap.add_argument("--interstitial", help="Interstitial mesh to use with --infogeneric")
 
-        args =  ap.parse_args(argslist)
-        args = Dict(vars(ap.parse_args()))
+        args, unknown =  ap.parse_known_args(argslist)
+        args = Dict(vars(args))
 
         self.config.update([ (k,v) for k,v in args.items() if v is not None])
-        print(self.config)
-        return self.config 
+
+        # return self.config 
+        return self.config, unknown
 
     def parse_config_and_cmdline_args(self):
+        """ Parse the config file, if any, then update data with commandline args, if any.
+
+        Only parses known arguments, returns args and list of unknown args. That way, plugins can 
+        parse further, more specific args.
+        """
 
         configfile, argslist = self.get_config_file()
         if configfile: 
             self.read(configfile)
-        self.parse_cmdline_args(argslist)
+        args, unknown = self.parse_cmdline_args(argslist)
 
-        return self.config
+        return args, unknown
 
 

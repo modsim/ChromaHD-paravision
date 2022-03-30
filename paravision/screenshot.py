@@ -69,7 +69,7 @@ def screenshot(object, args):
 if __name__=="__main__":
 
     config = ConfigHandler()
-    args = config.parse_config_and_cmdline_args()
+    args, _ = config.parse_config_and_cmdline_args()
 
     if args['standalone']: 
         readers = read_files(args['FILES'], filetype=args['filetype'], standalone=args['standalone'])
