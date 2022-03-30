@@ -290,3 +290,14 @@ def parse_cmdline_args():
     return args
 
 
+def configure_scalar_bar(LUT, view, colorbar_config):
+    """
+    Given a colorbar_config args Dict, configure the ParaView ColorBar
+    """
+
+    if not colorbar_config: 
+        return
+
+    ColorBar:Proxy = GetScalarBar(LUT, view)
+    for prop in colorbar_config.keys():
+        ColorBar.SetPropertyWithName(prop, colorbar_config[prop])
