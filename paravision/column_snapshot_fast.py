@@ -18,17 +18,8 @@ def column_snapshot_fast(args):
     
     print("WARNING: Assumes files are passed in order <particles_volume> <interstitial_volume>")
 
-    particles = read_files([args['FILES'][0]], filetype=args['filetype'])
-    interstitial = read_files([args['FILES'][1]], filetype=args['filetype'])
-
-    for key in args:
-        print(key + ': ', args[key])
-
-    geometry    = args['geometry']
-    axisVisible = args['show_axis']
-    zoom        = args['zoom']
-    files       = args['FILES']
-    filetype    = args['filetype']
+    particles = read_files([args.files[0]], filetype=args.filetype)
+    interstitial = read_files([args.files[1]], filetype=args.filetype)
 
     view = GetActiveViewOrCreate('RenderView')
 
@@ -45,7 +36,11 @@ def column_snapshot_fast(args):
     particlesDisplay.DiffuseColor = color_rgb
 
     print("Processing Column.")
-    outerShell = project(interstitial, args)
+    outerShell = project(
+            interstitial, 
+            {
+                'project': ['clip', 'Plane', 0.5, 'x']
+            })
 
     outerShellDisplay = Show(outerShell, view)
     print(outerShellDisplay.ColorArrayName)
@@ -55,15 +50,20 @@ def column_snapshot_fast(args):
     outerShellDisplay.Opacity = 0.5
     view.InteractionMode = '2D'
 
-    view_handler(args['view'], args['zoom'])
+    view_handler(args.view, args.zoom)
 
     view.Update()
     view.ResetCamera()
-    view.ViewSize = geometry
+    view.ViewSize = args.geometry
 
     ## NOTE: Only works on the first file provided
-    SaveScreenshot('column_snapshot.png', view, ImageResolution=geometry, TransparentBackground=1)
+    SaveScreenshot('column_snapshot.png', view, ImageResolution=args.geometry, TransparentBackground=1)
 
 if __name__=="__main__":
-    args = parse_cmdline_args()
+    config = ConfigHandler()
+    args, _ = config.parse_config_and_cmdline_args()
+
+    print("[bold yellow]Final set of args:[/bold yellow]")
+    print_json(data=args)
+
     column_snapshot_fast(args)
