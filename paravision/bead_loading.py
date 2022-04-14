@@ -5,12 +5,15 @@ from paraview.simple import *
 
 from vtkmodules.numpy_interface import dataset_adapter as dsa
 import vtk.util.numpy_support as ns #type:ignore
+from vtk import vtkThreshold
 
 import numpy as np
 
+from rich import print
+
 def bead_loading(reader, args):
-    for key in args:
-        print(key + ': ', args[key])
+
+    print("[bold red]PLEASE SPECIFY ONLY ONE SCALAR![/bold red]")
 
     scalars = args['scalars'] or reader.PointArrayStatus
     files = args['FILES']
@@ -54,7 +57,11 @@ def bead_loading(reader, args):
 
             print("Processing timestep: {timestep:3d} | bead: {index:5d}".format(timestep=timestep, index=index), end="\r")
             threshold = Threshold(Input=connectivity)
-            threshold.ThresholdRange = [index, index]
+            # threshold.ThresholdRange = [index, index]
+            threshold.Scalars = ['POINTS', "RegionId"]
+            threshold.LowerThreshold = index
+            threshold.UpperThreshold = index
+            threshold.ThresholdMethod = vtkThreshold.THRESHOLD_BETWEEN
             thresholdDisplay = Show(threshold, view)
             # threshold.UpdatePipeline()
 
