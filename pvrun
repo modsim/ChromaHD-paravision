@@ -46,9 +46,11 @@ def parse_outer_args():
 
     return args, unknown
 
+def run_module(module:str, args:list, nproc:int=1): 
+    command = importlib.util.find_spec(module).origin
+    run_command(command, args, nproc)
 
-def run_command(module:str, args:list, nproc:int=1):
-
+def run_command(commandstr:str, args:list, nproc:int=1):
     ## Needed because subprocess.run couldn't find modules
     myenv = os.environ
     pythonpath = os.pathsep.join(sys.path)
@@ -65,8 +67,7 @@ def run_command(module:str, args:list, nproc:int=1):
         pvpython_path = subprocess.run(['which', 'pvpython'], capture_output=True, env=myenv)
         print(f"Using pvpython from path: {pvpython_path.stdout.decode('ascii').strip()}")
 
-    command = []
-    command.extend([importlib.util.find_spec(module).origin])
+    command = commandstr.split()
     command.extend(args)
 
     command = command_pre + command
@@ -87,29 +88,29 @@ def main():
     # TODO: https://stackoverflow.com/questions/27529610/call-function-based-on-argparse
 
     if args.chromatogram:
-        run_command("paravision.chromatogram", argv_sub, args.nproc)
+        run_module("paravision.chromatogram", argv_sub, args.nproc)
     elif args.shell_chromatograms:
-        run_command("paravision.shell_chromatograms", argv_sub, args.nproc)
+        run_module("paravision.shell_chromatograms", argv_sub, args.nproc)
     elif args.grm2d:
-        run_command("paravision.grm2d", argv_sub, args.nproc)
+        run_module("paravision.grm2d", argv_sub, args.nproc)
     elif args.radial_shell_integrate:
-        run_command("paravision.radial_shell_integrate", argv_sub, args.nproc)
+        run_module("paravision.radial_shell_integrate", argv_sub, args.nproc)
     elif args.column_snapshot:
-        run_command("paravision.column_snapshot", argv_sub, args.nproc)
+        run_module("paravision.column_snapshot", argv_sub, args.nproc)
     elif args.column_snapshot_fast:
-        run_command("paravision.column_snapshot_fast", argv_sub, args.nproc)
+        run_module("paravision.column_snapshot_fast", argv_sub, args.nproc)
     elif args.volume_integral:
-        run_command("paravision.volume_integral", argv_sub, args.nproc)
+        run_module("paravision.volume_integral", argv_sub, args.nproc)
     elif args.bead_loading:
-        run_command("paravision.bead_loading", argv_sub, args.nproc)
+        run_module("paravision.bead_loading", argv_sub, args.nproc)
     elif args.mass_flux:
-        run_command("paravision.mass_flux", argv_sub, args.nproc)
+        run_module("paravision.mass_flux", argv_sub, args.nproc)
     elif args.animate:
-        run_command("paravision.animate", argv_sub, args.nproc)
+        run_module("paravision.animate", argv_sub, args.nproc)
     elif args.screenshot:
-        run_command("paravision.screenshot", argv_sub, args.nproc)
+        run_module("paravision.screenshot", argv_sub, args.nproc)
     elif args.infogeneric:
-        run_command("paravision.infogeneric", argv_sub, args.nproc)
+        run_module("paravision.infogeneric", argv_sub, args.nproc)
     elif args.pipeline:
         ## NOTE: Pipeline operations below [EXPERIMENTAL]
         ## NOTE: Doesn't work in parallel!!
