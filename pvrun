@@ -33,6 +33,8 @@ def parse_outer_args():
     g.add_argument("--infogeneric", action='store_true', help="Dump mesh info for generic field meshes")
     g.add_argument("--pipeline", nargs='+', help="Operations to be performed in pipe. NOT PARALLELIZED." )
 
+    g.add_argument("-p", "--plugin", help="Custom plugin script that calls paravision utilities" )
+
     ap.add_argument("-np", "--nproc", type=int, default=1, help="Screenshot the given object")
 
     ap.add_argument("-lsm", "--load-scientific-colormaps", action='store_true', help="Load all the ScientificColourMaps7 presets into ParaView before starting.")
@@ -111,6 +113,8 @@ def main():
         run_module("paravision.screenshot", argv_sub, args.nproc)
     elif args.infogeneric:
         run_module("paravision.infogeneric", argv_sub, args.nproc)
+    elif args.plugin: 
+        run_command(args.plugin, argv_sub, args.nproc)
     elif args.pipeline:
         ## NOTE: Pipeline operations below [EXPERIMENTAL]
         ## NOTE: Doesn't work in parallel!!
