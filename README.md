@@ -38,11 +38,13 @@ pvrun -np64 --column-snapshot <pvtu>
 
 # Design
 
-There are some top-level flags to perform top-level actions such as taking a screenshot, calculating the chromatogram, etc. These files are written to be independently runnable python scripts. Some utility wrappers around paraview's python scripting are found in `utils.py` and can be accessed by the top-level action scripts to make life easier.
+The `paravision` module consists of mainly the `utils.py` file that has some helper functions with respect to paraview's python API. Paraview's python scripting is powerful, but in my case I would have preferred a slightly higher level of abstraction to interact with.
 
-The `pvrun` script takes user input, processes the top-level flags and runs the corresponding action script in a `subprocess.run()` call, passing on the environment variables.
+Bundled along with module this is the `pvrun` script that handles running some built-in operations such as screenshotting, generating chromatograms, and calculating mass flux along the axial length of a chromatography column The built-ins are simply paraview python scripts that are executable themselves, but use `paravision.utils` for some sugar (ease of use). Since my work is regarding chromatography columns, we currently have the built-ins regarding that. Any custom plugin can also be run using the `-p or --plugin <custom-script.py>` arguments.
 
-Currently, `mpirun/mpiexec` is the only possible MPI runner.
+Eventually, ideally, we can move the current built-ins out into a separate chromatography-specific repository, and move the helper functions into their own files based on some categorization. 
+
+This project was initially just written into one long script `vis.py` with global commandline args to specify certain options, then a small rewrite `paravis.py`, before ultimately becoming `paravision`. Keeping conceptually disparate operations in one file was too much after a while, and having them completely separate meant a lot of verbosity and copying which did no one any good. In its current state, I find it works well for me, though I know that it's not as polished as I would like it to be.
 
 ## Configuration
 - Defaults are specified in the app (configHandler.py)
