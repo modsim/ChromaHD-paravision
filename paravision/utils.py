@@ -308,3 +308,22 @@ def configure_scalar_bar(LUT, view, colorbar_config):
     ColorBar:Proxy = GetScalarBar(LUT, view)
     for prop in colorbar_config.keys():
         ColorBar.SetPropertyWithName(prop, colorbar_config[prop])
+
+def create_threshold(object, scalar, method, lower_threshold=0.0, upper_threshold=0.0):
+    methodChoices = ['Between', 'Below Lower Threshold', 'Above Upper Threshold']
+    method = process.extractOne(method, methodChoices, scorer=fuzz.token_set_ratio)
+
+    if not method: 
+        raise RuntimeError("Bad thresholding method!")
+
+    threshold = Threshold(Input=object)
+    threshold.Scalars = ['POINTS', scalar]
+    # For paraview > 5.10
+    threshold.LowerThreshold = lower_threshold
+    threshold.UpperThreshold = upper_threshold
+    threshold.ThresholdMethod = method[0]
+    # For paraview < 5.10 
+    # threshold.ThresholdRange = [0, nbeads-1]
+
+    return threshold
+
