@@ -264,6 +264,7 @@ def parse_cmdline_args():
     ap.add_argument("-crm", "--color-range-method", choices=['auto', 'startzero', 'midzero', 'custom'], default='auto', help="Range method for the scalar bar (color transfer function)")
     ap.add_argument("-ccr", "--custom-color-range", nargs=2, type=float, help="Custom range for the scalar bar (color transfer function). Ensure -crm == custom")
 
+
     ap.add_argument("-s", "--scalars" , nargs='*' , help="Scalars to consider. (Previously colorvars).")
 
     ap.add_argument("-z", "--zoom", type=float, default=1, help="Zoom (camera.dolly) value for view")
@@ -327,3 +328,45 @@ def create_threshold(object, scalar, method, lower_threshold=0.0, upper_threshol
 
     return threshold
 
+def handle_coloring(object, display, scalar, args): 
+
+    if scalar == 'None':
+        ColorBy(display, None)
+    else:
+        ColorBy(display, ('POINTS', scalar))
+
+    wLUT:Proxy = GetColorTransferFunction(scalar)
+    wPWF:Proxy = GetOpacityTransferFunction(scalar)
+
+    pd = object.PointData
+
+    if args.colors_logscale: 
+        # convert to log space
+        wLUT.MapControlPointsToLogSpace()
+        # Properties modified on wLUT
+        wLUT.UseLogScale = 1
+
+    if args.opacity_mapping: 
+        # Properties modified on wLUT
+        wLUT.EnableOpacityMapping = 1
+
+    if args.opacity_logscale: 
+        # convert to log space
+        wPWF.MapControlPointsToLogSpace()
+        # Properties modified on wPWF
+        wPWF.UseLogScale = 1
+
+    wLUT.ApplyPreset(find_preset( args['colormap'] , args['colormap_fuzzy_cutoff']), True)
+
+    if args.color_range_method == 'auto': 
+        display.RescaleTransferFunctionToDataRange(False, True)
+    elif args.color_range_method == 'startzero': 
+        crange = pd.GetArray(scalar).GetRange()
+        wLUT.RescaleTransferFunction(0.0, crange[1])
+    elif args.color_range_method == 'midzero': 
+        crange = pd.GetArray(scalar).GetRange()
+        wLUT.RescaleTransferFunction(-abs(max(crange, key=abs)), abs(max(crange, key=abs)))
+    elif args.color_range_method == 'custom': 
+        wLUT.RescaleTransferFunction(args.custom_color_range[0], args.custom_color_range[1])
+
+    return wLUT, wPWF

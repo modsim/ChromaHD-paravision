@@ -36,6 +36,9 @@ class ConfigHandler:
             'display_representation': 'Surface',
             'color_range_method': 'auto',
             'custom_color_range': None,
+            'colors_logscale': False,
+            'opacity_logscale': False,
+            'opacity_mapping': False,
             'scalars': None,
             'zoom': 1,
             'view': ['-x', '-y'],
@@ -133,6 +136,10 @@ class ConfigHandler:
         ap.add_argument("-crm", "--color-range-method", choices=['auto', 'startzero', 'midzero', 'custom'], help="Range method for the scalar bar (color transfer function)")
         ap.add_argument("-ccr", "--custom-color-range", nargs=2, type=float, help="Custom range for the scalar bar (color transfer function). Ensure -crm == custom")
 
+        ap.add_argument("-clog", "--colors-logscale", action='store_true', default=None, help="Plot colors in log scale")
+        ap.add_argument("-omap", "--opacity-mapping", action='store_true', default=None, help="Object opacity by scalar value")
+        ap.add_argument("-olog", "--opacity-logscale", action='store_true', default=None, help="Object opacity in log scale")
+
         ap.add_argument("-sa", "--show-axis", action=argparse.BooleanOptionalAction, default=None, help="Show coordinate axis")
         ap.add_argument("-sb", "--show-scalar-bar", action=argparse.BooleanOptionalAction, default=None, help="Show scalar color bar")
 
@@ -163,6 +170,7 @@ class ConfigHandler:
 
         self.config.update([ (k,v) for k,v in args.items() if v is not None])
 
+        print(self.config)
         # return self.config 
         return self.config, unknown
 
