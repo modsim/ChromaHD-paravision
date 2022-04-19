@@ -8,6 +8,8 @@ import os
 import argparse
 from addict import Dict
 
+from vtkmodules.numpy_interface import dataset_adapter as dsa
+
 from rich import print
 
 def appendToBin(arr, filename, f):
@@ -123,6 +125,14 @@ def get_cross_sections(reader, nSlice=1):
         slices.append(projection)
 
     return slices
+
+def get_volume(object):
+    integrated = IntegrateVariables(Input=object)
+    intdata = servermanager.Fetch(integrated)
+    intdata = dsa.WrapDataObject(intdata)
+    int_volume = intdata.CellData['Volume'][0]
+    Delete(integrated)
+    return int_volume
 
 def find_preset(name, score_cutoff=70):
     """ Fuzzy find routine for presets. 
