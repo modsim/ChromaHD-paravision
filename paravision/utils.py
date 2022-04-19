@@ -134,6 +134,23 @@ def get_volume(object):
     Delete(integrated)
     return int_volume
 
+# TODO: remove dependence on args. See also handle_coloring()
+def save_screenshot(object, view, scalar, args, filename:str='screenshot.png' ): 
+    display = Show(object, view)
+    display.Representation = args.display_representation
+
+    wLUT, _ = handle_coloring(object, display, scalar, args)
+
+    configure_scalar_bar(wLUT, view, args.get('ColorBar'))
+    UpdateScalarBars()
+    display.SetScalarBarVisibility(view, args.show_scalar_bar)
+
+    print(f'Saving screenshot to file: {filename}')
+    SaveScreenshot(filename, view, ImageResolution=args['geometry'], TransparentBackground=1)
+
+    Delete(display)
+
+
 def find_preset(name, score_cutoff=70):
     """ Fuzzy find routine for presets. 
     Look in ScientificColourMaps7 if not found in ParaView and import
@@ -228,6 +245,8 @@ def read_files_inner(files, filetype):
         reader = XMLPartitionedUnstructuredGridReader(FileName=files)
     elif filetype == 'vtk':
         reader = LegacyVTKReader(FileNames=files)
+    elif filetype == 'pvd':
+        reader = PVDReader(FileName=files)
     else:
         print(f"Unsupported File Format! ({filetype})")
         raise(ValueError)
@@ -257,6 +276,7 @@ def parse_cmdline_args():
     ap.add_argument("--mass-flux", type=int, help="Calculate mass flux (or volume flux) at n slices")
     ap.add_argument("--animate", action='store_true', help="Create animation as series of pngs")
     ap.add_argument("--infogeneric", action='store_true', help="Dump mesh info for generic field meshes")
+    ap.add_argument("--infoclassic", action='store_true', help="Dump mesh info for classic interstitial meshes")
 
     ap.add_argument("-np", "--nproc", type=int, default=1, help="Screenshot the given object")
 
@@ -338,6 +358,9 @@ def create_threshold(object, scalar, method, lower_threshold=0.0, upper_threshol
 
     return threshold
 
+# TODO: Remove args
+# Potentially just pass a dict to reduce args list bloat
+# Would require heirarchical configuration. 
 def handle_coloring(object, display, scalar, args): 
 
     if scalar == 'None':
@@ -378,5 +401,11 @@ def handle_coloring(object, display, scalar, args):
         wLUT.RescaleTransferFunction(-abs(max(crange, key=abs)), abs(max(crange, key=abs)))
     elif args.color_range_method == 'custom': 
         wLUT.RescaleTransferFunction(args.custom_color_range[0], args.custom_color_range[1])
+    elif args.color_range_method == 'custom_bottom': 
+        crange = pd.GetArray(scalar).GetRange()
+        wLUT.RescaleTransferFunction(args.custom_color_range[0], crange[1])
+    elif args.color_range_method == 'custom_top': 
+        crange = pd.GetArray(scalar).GetRange()
+        wLUT.RescaleTransferFunction(crange[0], args.custom_color_range[1])
 
     return wLUT, wPWF
