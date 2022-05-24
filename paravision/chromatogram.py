@@ -8,6 +8,8 @@ import argparse
 from addict import Dict
 from rich import print, print_json
 
+## TODO: Test with parallel meshes
+
 def chromatogram(reader, args):
     """
         Calculate chromatogram from given 2D concentration field and flowfield
@@ -153,6 +155,8 @@ def chromatogram(reader, args):
 
         for region in range(nRegions):
             csvWriter("shell_{i}.csv".format(i=region), timeArray, integrated_over_time[region])
+
+        csvWriter(f'flowrates_{nRegions}.csv', radAvg, flowrates)
 
 
 def chromatogram_parser(args, local_args_list):
