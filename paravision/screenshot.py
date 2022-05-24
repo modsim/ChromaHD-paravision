@@ -33,6 +33,7 @@ def screenshot(object, args):
         display.Representation = args['display_representation']
 
         if scalar == 'None':
+            display.ColorArrayName = ['POINTS', '']
             ColorBy(display, None)
         else:
             ColorBy(display, ('POINTS', scalar))
