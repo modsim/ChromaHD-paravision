@@ -71,7 +71,7 @@ def radial_shell_integrate(reader, args):
     print("Average scalar by radius:", appended)
 
     for i, scalar in enumerate(scalars): 
-        csvWriter(f'radial_shell_integrate_{scalar}.csv', radAvg, map(lambda x: x[i], appended))
+        csvWriter(f'radial_shell_integrate_{scalar}_{nRegions}_{args.output_prefix}.csv', radAvg, map(lambda x: x[i], appended))
 
 
 def radial_shell_integrate_parser(args, local_args_list):
