@@ -4,6 +4,8 @@
 *.jpeg
 *.cg
 *.dat
+*.pvtu
+*.vtu
 rng.data
 rng.mien
 rng.mxyz
