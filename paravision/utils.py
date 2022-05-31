@@ -309,7 +309,7 @@ def parse_cmdline_args():
 
     ap.add_argument("-o", "--output-prefix", help="prefix for output filenames")
 
-    ap.add_argument("-f", "--filetype", default='pvtu', choices=['xdmf', 'vtu', 'vtk', 'pvtu'], help="filetype: xdmf | vtu | vtk | pvtu")
+    ap.add_argument("-f", "--filetype", default='pvtu', choices=['xdmf', 'vtu', 'vtk', 'pvtu', 'pvd'], help="filetype: xdmf | vtu | vtk | pvtu")
     ap.add_argument("--standalone", action='store_true', help="Read files as separate standalone objects, not part of time series.")
 
     ap.add_argument("--append-datasets", action='store_true', help="Use AppendDatasets on standalone files before processing.")
