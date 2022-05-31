@@ -1,14 +1,9 @@
 {
     pkgs ? import (builtins.fetchTarball {
 
-      # Descriptive name to make the store path easier to identify
-      name = "nixpkgs-unstable-2022-03-17";
-
-      # Commit hash for nixos-unstable as of 2018-09-12
-      url = "https://github.com/nixos/nixpkgs/archive/3eb07eeafb52bcbf02ce800f032f18d666a9498d.tar.gz";
-
-      # Hash obtained using `nix-prefetch-url --unpack <url>`
-      sha256 = "1ah1fvll0z3w5ykzc6pabqr7mpbnbl1i3vhmns6k67a4y7w0ihrr";
+      name = "nixpkgs-unstable-2022-04-14";
+      url = "https://github.com/nixos/nixpkgs/archive/6361b4941a69395ebf15e6e56b142765fce850f9.tar.gz";
+      sha256 = "1lzi51c5a2wrhvmv255qajlkba5f6j4pfvidlrh9r004snpw5ikj";
     
     }) {}
 }:
@@ -94,6 +89,8 @@ in pkgs.mkShell rec {
     export PYTHONPATH="$PIP_PREFIX/${pkgs.python3.sitePackages}:$PYTHONPATH"
     export PYTHONPATH="${paraview}/lib/python3.9/site-packages:$PYTHONPATH"
     PYTHONPATH=${python-with-my-packages}/${python-with-my-packages.sitePackages}:$PYTHONPATH
+    export PYTHONPATH="$(pwd):$PYTHONPATH"
+    export PATH="$(pwd):$PATH"
     export PATH="$PIP_PREFIX/bin:$PATH"
     unset SOURCE_DATE_EPOCH
   '';
