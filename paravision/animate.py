@@ -8,9 +8,9 @@ def animate(reader, args):
         print(key + ': ', args[key])
     projectionType = args['projectionType']
     scalars = args['scalars'] or reader.PointArrayStatus
-    scalarBarVisible = not args['no_scalar_bar']
+    scalarBarVisible = args['show_scalar_bar']
     geometry = args['geometry']
-    axisVisible = not args['no_coordinate_axis']
+    axisVisible = args['show_axis']
     zoom = args['zoom']
 
     animationScene = GetAnimationScene()
@@ -80,8 +80,8 @@ def animate(reader, args):
 
         view.Update()
         UpdateScalarBars()
-
         projectionDisplay.SetScalarBarVisibility(view, scalarBarVisible)
+
         SaveAnimation(scalar + '.png', view, ImageResolution=geometry, TransparentBackground=1, SuffixFormat='.%04d')
 
 if __name__=="__main__":
