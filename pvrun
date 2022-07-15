@@ -31,6 +31,7 @@ def parse_outer_args():
     g.add_argument("--mass-flux", type=int, help="Calculate mass flux (or volume flux) at n slices")
     g.add_argument("--animate", action='store_true', help="Create animation as series of pngs")
     g.add_argument("--infogeneric", action='store_true', help="Dump mesh info for generic field meshes")
+    g.add_argument("--save-projection", action='store_true', help="Save a projection. Use --project" )
     g.add_argument("--pipeline", nargs='+', help="Operations to be performed in pipe. NOT PARALLELIZED." )
 
     g.add_argument("-p", "--plugin", help="Custom plugin script that calls paravision utilities" )
@@ -111,6 +112,8 @@ def main():
         run_module("paravision.animate", argv_sub, args.nproc)
     elif args.screenshot:
         run_module("paravision.screenshot", argv_sub, args.nproc)
+    elif args.save_projection:
+        run_module("paravision.save_projection", argv_sub, args.nproc)
     elif args.infogeneric:
         run_module("paravision.infogeneric", argv_sub, args.nproc)
     elif args.plugin: 

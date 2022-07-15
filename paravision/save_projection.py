@@ -23,7 +23,7 @@ def saveprojection(object, args):
     # integrated = integrate(projection, ['scalar_0'], normalize=None, timeArray=[])
     # print(integrated)
 
-    SaveData(f"{args.saveas}", proxy=projection, PointDataArrays=args.scalars)
+    SaveData(f"{args.saveas}", proxy=projection, PointDataArrays=args.scalars, WriteTimeSteps=1) 
 
 def saveprojection_parser(args, local_args_list):
 

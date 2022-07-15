@@ -151,7 +151,7 @@ class ConfigHandler:
         ap.add_argument("-g", "--geometry", nargs=2, type=int, help="Animation geometry size")
 
         ap.add_argument("-o", "--output-prefix", help="prefix for output filenames")
-        ap.add_argument("-f", "--filetype", choices=['xdmf', 'vtu', 'vtk', 'pvtu'], help="filetype: xdmf | vtu | vtk | pvtu")
+        ap.add_argument("-f", "--filetype", choices=['xdmf', 'vtu', 'vtk', 'pvtu', 'pvd'], help="filetype: xdmf | vtu | vtk | pvtu")
 
         ap.add_argument("--standalone", action=argparse.BooleanOptionalAction, default=None, help="Read files as separate standalone objects, not part of time series.")
         ap.add_argument("--append-datasets", action=argparse.BooleanOptionalAction, default=None, help="Use AppendDatasets on standalone files before processing.")
