@@ -1,5 +1,6 @@
 from paravision.utils import csvWriter, read_files
 from paravision.integrate import integrate
+from paravision.project import project
 
 from paraview.simple import *
 from paravision import ConfigHandler
@@ -49,20 +50,35 @@ def chromatogram(reader, args):
         csvWriter('chromatogram.csv', reader.TimestepValues, chromatogram)
 
     elif args.type == 'shells': 
+
+        get_shell_chromatograms(reader, flow, args, timeArray=timeArray)
+
+    elif args.type == 'shells_at_slice': 
+
+        args.project[0] = 'slice'
+
+        mass_slice = project(reader, args)
+        flow_slice = project(flow, args)
+
+        get_shell_chromatograms(mass_slice, flow_slice, args, timeArray=timeArray)
+
+        
+def get_shell_chromatograms(mass, flow, args, timeArray): 
         nRegions = args.nrad
         shellType = args.shelltype
 
         timeKeeper = GetTimeKeeper()
-        timeArray = reader.TimestepValues
+        # timeArray = mass.TimestepValues
         nts = len(timeArray) or 1
 
         # conc * velocity_z
-        cu = PythonCalculator(Input=[reader, flow])
+        cu = PythonCalculator(Input=[mass, flow])
         cu.Expression = "inputs[0].PointData['scalar_0'] * inputs[1].PointData['scalar_2']"
         
         view = GetActiveViewOrCreate('RenderView')
         ## Calc bounding box. Requires show
         display = Show(cu, view)
+        # SetActiveSource(cu)
         (xmin,xmax,ymin,ymax,zmin,zmax) = GetActiveSource().GetDataInformation().GetBounds()
         Hide(cu, view)
 
@@ -158,12 +174,11 @@ def chromatogram(reader, args):
 
         csvWriter(f'flowrates_{nRegions}.csv', radAvg, flowrates)
 
-
 def chromatogram_parser(args, local_args_list):
 
     ap = argparse.ArgumentParser()
 
-    ap.add_argument("--type", choices=['full', 'shells'], help="Chromatogram for full area or shells")
+    ap.add_argument("--type", choices=['full', 'shells', 'shells_at_slice'], help="Chromatogram for full area or shells")
     ap.add_argument("--flow", help="Flowfield pvtu/vtu file for use in chromatograms. May need --resample-flow.")
     ap.add_argument("--resample-flow", action=argparse.BooleanOptionalAction, default=None, help="Flag to resample flowfield data using concentration mesh")
     ap.add_argument("-nr", "--nrad", type=int, help="Radial discretization size for shell chromatograms. Also see --shelltype")
