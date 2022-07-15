@@ -1,7 +1,8 @@
 from paraview.simple import *
 
-from paravision.utils import csvWriter, read_files
+from paravision.utils import csvWriter, read_files, get_bounds
 from paravision.integrate import integrate
+from paravision.project import project
 
 from paravision import ConfigHandler
 import argparse
@@ -19,12 +20,23 @@ def radial_shell_integrate(reader, args):
     nRegions = args.nrad
     shellType = args.shelltype
 
+    timeKeeper = GetTimeKeeper()
+    timeArray = reader.TimestepValues
+    nts = len(timeArray) or 1
+
+    projection = project(reader, args)
 
     ## Calc bounding box. Requires show
     view = GetActiveViewOrCreate('RenderView')
-    display = Show(reader, view)
+    HideAll(view)
+    SetActiveSource(projection)
+    view.Update()
+
+    display = Show(projection, view)
+
     (xmin,xmax,ymin,ymax,zmin,zmax) = GetActiveSource().GetDataInformation().GetBounds()
-    Hide(reader, view)
+    print('Bounds: ',*(xmin,xmax,ymin,ymax,zmin,zmax))
+    Hide(projection, view)
 
     nShells = nRegions + 1 #Including r = 0
     rShells = []
@@ -41,38 +53,60 @@ def radial_shell_integrate(reader, args):
 
     print("rShells:", rShells)
 
-    appended = []
     radAvg = []
-
     for radIn, radOut in zip(rShells[:-1], rShells[1:]+rShells[:0]):
-
         radAvg.append( (radIn + radOut) / 2 )
 
-        clipOuter = Clip(Input=reader)
-        clipOuter.ClipType = 'Cylinder'
-        clipOuter.ClipType.Axis = [0.0, 0.0, 1.0]
-        clipOuter.ClipType.Radius = radOut
-        Hide3DWidgets(proxy=clipOuter.ClipType)
+    final = []
+    for timestep in range(nts):
 
-        clipInner = Clip(Input=clipOuter)
-        clipInner.ClipType = 'Cylinder'
-        clipInner.ClipType.Axis = [0.0, 0.0, 1.0]
-        clipInner.ClipType.Radius = radIn
-        clipInner.Invert = 0
+        try: 
+            timeKeeper.Time = timestep
+            projection.UpdatePipeline(timeArray[timestep])
+        except IndexError: 
+            pass
 
-        values = integrate(clipInner, scalars, normalize=args.normalize)[0]
+        print("its:", timestep)
 
-        Delete(clipInner)
-        Delete(clipOuter)
+        appended = []
+        # radAvg = []
 
-        print(values)
-        appended.append(values)
+        for radIn, radOut in zip(rShells[:-1], rShells[1:]+rShells[:0]):
 
-    print("Average scalar by radius:", appended)
+            # radAvg.append( (radIn + radOut) / 2 )
 
-    for i, scalar in enumerate(scalars): 
-        csvWriter(f'radial_shell_integrate_{scalar}_{nRegions}_{args.output_prefix}.csv', radAvg, map(lambda x: x[i], appended))
+            clipOuter = Clip(Input=projection)
+            clipOuter.ClipType = 'Cylinder'
+            clipOuter.ClipType.Axis = [0.0, 0.0, 1.0]
+            clipOuter.ClipType.Radius = radOut
+            Hide3DWidgets(proxy=clipOuter.ClipType)
 
+            clipInner = Clip(Input=clipOuter)
+            clipInner.ClipType = 'Cylinder'
+            clipInner.ClipType.Axis = [0.0, 0.0, 1.0]
+            clipInner.ClipType.Radius = radIn
+            clipInner.Invert = 0
+
+            values = integrate(clipInner, scalars, normalize=args.normalize)[0]
+
+            Delete(clipInner)
+            Delete(clipOuter)
+
+            print(values)
+            appended.append(values)
+
+            print("Average scalar by radius:", appended)
+
+        final.append(appended)
+
+
+    if nts == 1: 
+        for i, scalar in enumerate(scalars):
+            csvWriter(f'radial_shell_integrate_{scalar}_{nRegions}_{args.output_prefix}.csv', radAvg, map(lambda x: x[i], final[0]))
+    else: 
+        for rad in range(nRegions): 
+            for i, scalar in enumerate(scalars): 
+                csvWriter(f'radial_shell_integrate_time_{scalar}_{rad}_{args.output_prefix}.csv', timeArray, map(lambda x: x[rad][i], final))
 
 def radial_shell_integrate_parser(args, local_args_list):
     ap = argparse.ArgumentParser()
