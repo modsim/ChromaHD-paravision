@@ -53,16 +53,27 @@ def default_origin_normal(reader, origin, normal):
 
     """
     view = GetActiveViewOrCreate('RenderView')
+    HideAll()
     display = Show(reader, view)
+    SetActiveSource(reader)
     (xmin,xmax,ymin,ymax,zmin,zmax) = GetActiveSource().GetDataInformation().GetBounds()
-    # print('bbox: ', xmin,xmax,ymin,ymax,zmin,zmax)
+    print('bbox: ', xmin,xmax,ymin,ymax,zmin,zmax)
     Hide(reader, view)
+    Delete(display)
 
     new_normal = direction_handler(normal)
     origin_mask = [ xmin + float(origin) * (xmax - xmin), ymin + float(origin) * (ymax - ymin), zmin + float(origin) * (zmax - zmin)]
     new_origin = [abs(x) * y for x,y in zip(new_normal, origin_mask)]
 
     return new_origin, new_normal
+
+def get_bounds(reader): 
+    SetActiveSource(reader)
+    view = GetActiveViewOrCreate('RenderView')
+    display = Show(reader, view)
+    bounds = GetActiveSource().GetDataInformation().GetBounds()
+    Hide(reader, view)
+    return bounds
 
 def direction_handler(dir:str):
     """
