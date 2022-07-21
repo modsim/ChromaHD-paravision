@@ -25,6 +25,7 @@ def parse_outer_args():
     g.add_argument("--screenshot", action='store_true', help="Screenshot the given object")
     g.add_argument("--bead-loading", action='store_true', help="Screenshot the given object")
     g.add_argument("--radial-shell-integrate", action='store_true', help="Divide object radially and integrate. Choices indicate normalization method. See --nrad, --shelltype")
+    g.add_argument("--radial-porosity", action='store_true', help="Calculate the radial porosity profile")
     g.add_argument("--column-snapshot", action='store_true', help="Snapshot the column with a semi-transparent container")
     g.add_argument("--column-snapshot-fast", action='store_true', help="Snapshot the column with a semi-transparent container")
     g.add_argument("--volume-integral", action='store_true', help="Integrate over volume. Can use --normalize to calculate \"averages\"")
@@ -116,6 +117,8 @@ def main():
         run_module("paravision.save_projection", argv_sub, args.nproc)
     elif args.infogeneric:
         run_module("paravision.infogeneric", argv_sub, args.nproc)
+    elif args.radial_porosity:
+        run_module("paravision.radial_porosity", argv_sub, args.nproc)
     elif args.plugin: 
         run_command(args.plugin, argv_sub, args.nproc)
     elif args.pipeline:
