@@ -52,7 +52,7 @@ def radial_shell_flux(object, args):
 
     # WARNING: This is because clip/slice at the end of the column doesn't work as intended
     print("Slicing from 1.01 * zmin to 0.99 * zmax!!")
-    z_slice_locations = np.linspace(zmin + args.xyoffset, zmax - args.xyoffset, args['naxial'])
+    z_slice_locations = np.linspace(zmin + args.offset, zmax - args.offset, args['naxial'])
 
     radAvg = []
     count = 0
@@ -107,7 +107,7 @@ def radial_shell_flux(object, args):
 
     final_average = np.average(accumulated_values, axis=0)
     print(final_average)
-    csvWriter(f'averaged_radial_flux_{args.naxial}_{args.nrad}_{args.shelltype}_{args.normalize}_{args.xyoffset}.csv', radAvg, final_average)
+    csvWriter(f'averaged_radial_flux_{args.naxial}_{args.nrad}_{args.shelltype}_{args.normalize}_{args.offset}.csv', radAvg, final_average)
 
 
 def radial_shell_flux_parser(args, local_args_list):
@@ -117,7 +117,7 @@ def radial_shell_flux_parser(args, local_args_list):
     ap.add_argument("-nr", "--nrad", type=int, help="Radial discretization size for shell chromatograms. Also see --shelltype")
     ap.add_argument("-st", "--shelltype", choices = ['EQUIDISTANT', 'EQUIVOLUME'], help="Radial shell discretization type. See --nrad")
     ap.add_argument("-n", "--normalize", choices = ['NoNorm', 'Area'], help="Normalization for integration. Divides integrated result by Area")
-    ap.add_argument("-xyo", "--xyoffset", type=float, help="Subtract/Add offset to zmin/zmax while calculating slice locations")
+    ap.add_argument("--offset", type=float, default=0.0, help="Subtract/Add offset to zmin/zmax while calculating slice locations")
 
     ap.add_argument("FILES", nargs='*', help="files..")
 
