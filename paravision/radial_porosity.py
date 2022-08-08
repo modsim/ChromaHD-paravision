@@ -77,7 +77,7 @@ def radial_porosity_profile(reader, args):
         Delete(clipOuter)
 
     print(porosity_profile)
-    csvWriter(f'porosity_profile_{args.shelltype}_{args.nrad}.csv', radAvg, porosity_profile)
+    csvWriter(f'porosity_profile_{args.shelltype}_{args.nrad}_{args.output_prefix}.csv', radAvg, porosity_profile)
 
 
 def radial_porosity_parser(args, local_args_list):
