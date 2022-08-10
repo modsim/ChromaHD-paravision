@@ -1,17 +1,26 @@
 from paraview.simple import *
+from paravision import ConfigHandler
+import argparse
+from addict import Dict
+from paravision.utils import find_preset
+
+from rich import print, print_json
 
 from paravision.utils import parse_cmdline_args, read_files, view_handler
 from paravision.project import project
 
-def animate(reader, args):
-    for key in args:
-        print(key + ': ', args[key])
-    projectionType = args['projectionType']
-    scalars = args['scalars'] or reader.PointArrayStatus
-    scalarBarVisible = args['show_scalar_bar']
-    geometry = args['geometry']
-    axisVisible = args['show_axis']
-    zoom = args['zoom']
+from paravision.defaults import DEFAULT_CONFIG
+
+def animate(reader, **kwargs):
+
+    config = DEFAULT_CONFIG
+    config.update(kwargs)
+
+    scalars = config.get('scalars') or reader.PointArrayStatus
+    scalarBarVisible = config.get('show_scalar_bar', False)
+    geometry = config.get('geometry', [2560, 1440])
+    axisVisible = config.get('show_axis', False)
+    zoom = config.get('zoom', 1)
 
     animationScene = GetAnimationScene()
     timekeeper = GetTimeKeeper()
@@ -34,18 +43,18 @@ def animate(reader, args):
     #     timekeeper.Time = 0
 
     # projection = Projection(reader, projectionType)
-    projection = project(reader, *args.project)
+    projection = project(reader, *config.get('project', [None, None, None, None]))
 
     view = GetActiveViewOrCreate('RenderView')
     projectionDisplay = Show(projection, view)
-    projectionDisplay.Representation = args['display_representation']
+    projectionDisplay.Representation = config.get( 'display_representation' )
     view.OrientationAxesVisibility = int(axisVisible)
     projectionDisplay.RescaleTransferFunctionToDataRange()
     view.ViewSize = geometry
     view.Update()
 
     # setCameraOrientation(zoom)
-    view_handler(args['view'], args['zoom'])
+    view_handler(config['view'], config['zoom'])
 
     for scalar in scalars:
         print("Animating", scalar )
@@ -74,7 +83,7 @@ def animate(reader, args):
         wPWF = GetOpacityTransferFunction(scalar)
         HideScalarBarIfNotNeeded(wLUT, view)
 
-        wLUT.ApplyPreset(args['colormap'], True)
+        wLUT.ApplyPreset(find_preset( config['colormap'] , config['colormap_fuzzy_cutoff']), True)
 
         wLUT.RescaleTransferFunction(pd_range_min, pd_range_max)
 
@@ -84,7 +93,27 @@ def animate(reader, args):
 
         SaveAnimation(scalar + '.png', view, ImageResolution=geometry, TransparentBackground=1, SuffixFormat='.%04d')
 
+def animate_parser(args, local_args_list): 
+
+    ap = argparse.ArgumentParser()
+
+    ap.add_argument("FILES", nargs='*', help="files..")
+
+    print(local_args_list)
+
+    local_args = ap.parse_args(local_args_list)
+    local_args = Dict(vars(local_args))
+
+    print_json(data=local_args)
+
+    args.update([ (k,v) for k,v in local_args.items() if v is not None])
+
+    return args
+
 if __name__=="__main__":
-    args = parse_cmdline_args()
+    config = ConfigHandler()
+    args, local_args_list = config.parse_config_and_cmdline_args()
+    args = animate_parser(args, local_args_list)
     reader = read_files(args['FILES'], filetype=args['filetype'])
-    animate(reader, args)
+
+    animate(reader, **args)

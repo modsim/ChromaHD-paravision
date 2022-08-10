@@ -12,11 +12,11 @@ from rich import print, print_json
 
 from math import sqrt, pi
 
-def radial_porosity_profile(reader, args):
-    nRegions = args.nrad
-    shellType = args.shelltype
+def radial_porosity_profile(reader, nrad, shelltype, projectargs, output_prefix=None):
+    nRegions = nrad
+    shellType = shelltype
 
-    projection = project(reader, *args.project)
+    projection = project(reader, *projectargs)
 
     ## Calc bounding box. Requires show
     view = GetActiveViewOrCreate('RenderView')
@@ -77,7 +77,7 @@ def radial_porosity_profile(reader, args):
         Delete(clipOuter)
 
     print(porosity_profile)
-    csvWriter(f'porosity_profile_{args.shelltype}_{args.nrad}_{args.output_prefix}.csv', radAvg, porosity_profile)
+    csvWriter(f'porosity_profile_{shelltype}_{nrad}_{output_prefix}.csv', radAvg, porosity_profile)
 
 
 def radial_porosity_parser(args, local_args_list):
@@ -109,4 +109,4 @@ if __name__=="__main__":
     print_json(data=args)
 
     reader = read_files(args['FILES'], filetype=args['filetype'])
-    radial_porosity_profile(reader, args)
+    radial_porosity_profile(reader, args.nrad, args.shelltype, args.project, args.output_prefix )

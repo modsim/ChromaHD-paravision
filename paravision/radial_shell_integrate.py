@@ -12,19 +12,17 @@ from rich import print, print_json
 
 from math import sqrt
 
-def radial_shell_integrate(reader, args):
-    for key in args:
-        print(key + ': ', args[key])
+def radial_shell_integrate(reader, nrad, shelltype, projectargs, normalize, scalars=None, output_prefix=None, timeArray=[]):
 
-    scalars = args['scalars'] or reader.PointArrayStatus
-    nRegions = args.nrad
-    shellType = args.shelltype
+    scalars = scalars or reader.PointArrayStatus
+    nRegions = nrad
+    shellType = shelltype
 
     timeKeeper = GetTimeKeeper()
-    timeArray = reader.TimestepValues
+    timeArray = timeArray or reader.TimestepValues
     nts = len(timeArray) or 1
 
-    projection = project(reader, *args.project)
+    projection = project(reader, *projectargs)
 
     ## Calc bounding box. Requires show
     view = GetActiveViewOrCreate('RenderView')
@@ -87,7 +85,7 @@ def radial_shell_integrate(reader, args):
             clipInner.ClipType.Radius = radIn
             clipInner.Invert = 0
 
-            values = integrate(clipInner, scalars, normalize=args.normalize)[0]
+            values = integrate(clipInner, scalars, normalize=normalize)[0]
 
             Delete(clipInner)
             Delete(clipOuter)
@@ -102,11 +100,11 @@ def radial_shell_integrate(reader, args):
 
     if nts == 1: 
         for i, scalar in enumerate(scalars):
-            csvWriter(f'radial_shell_integrate_{scalar}_{nRegions}_{args.output_prefix}.csv', radAvg, map(lambda x: x[i], final[0]))
+            csvWriter(f'radial_shell_integrate_{scalar}_{nRegions}_{output_prefix}.csv', radAvg, map(lambda x: x[i], final[0]))
     else: 
         for rad in range(nRegions): 
             for i, scalar in enumerate(scalars): 
-                csvWriter(f'radial_shell_integrate_time_{scalar}_{rad}_{args.output_prefix}.csv', timeArray, map(lambda x: x[rad][i], final))
+                csvWriter(f'radial_shell_integrate_time_{scalar}_{rad}_{output_prefix}.csv', timeArray, map(lambda x: x[rad][i], final))
 
 def radial_shell_integrate_parser(args, local_args_list):
     ap = argparse.ArgumentParser()
@@ -138,4 +136,4 @@ if __name__=="__main__":
     print_json(data=args)
 
     reader = read_files(args['FILES'], filetype=args['filetype'])
-    radial_shell_integrate(reader, args)
+    radial_shell_integrate(reader, args.nrad, args.shelltype, args.project, args.normalize, args.scalars, args.output_prefix)

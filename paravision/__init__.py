@@ -10,3 +10,4 @@ from .configHandler import ConfigHandler
 from . import utils
 from . import log
 from . import project
+from . import defaults
