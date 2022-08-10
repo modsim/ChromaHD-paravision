@@ -16,7 +16,7 @@ def radial_porosity_profile(reader, args):
     nRegions = args.nrad
     shellType = args.shelltype
 
-    projection = project(reader, args)
+    projection = project(reader, *args.project)
 
     ## Calc bounding box. Requires show
     view = GetActiveViewOrCreate('RenderView')

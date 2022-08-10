@@ -36,11 +36,7 @@ def column_snapshot_fast(args):
     particlesDisplay.DiffuseColor = color_rgb
 
     print("Processing Column.")
-    outerShell = project(
-            interstitial, 
-            {
-                'project': ['clip', 'Plane', 0.5, 'x']
-            })
+    outerShell = project( interstitial, 'clip', 'Plane', 0.5, 'x' )
 
     outerShellDisplay = Show(outerShell, view)
     print(outerShellDisplay.ColorArrayName)

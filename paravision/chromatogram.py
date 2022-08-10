@@ -57,8 +57,8 @@ def chromatogram(reader, args):
 
         args.project[0] = 'slice'
 
-        mass_slice = project(reader, args)
-        flow_slice = project(flow, args)
+        mass_slice = project(reader, *args.project)
+        flow_slice = project(flow, *args.project)
 
         get_shell_chromatograms(mass_slice, flow_slice, args, timeArray=timeArray)
 

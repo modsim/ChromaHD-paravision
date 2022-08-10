@@ -33,39 +33,39 @@ def column_snapshot(reader, args):
     # for index in range(nbeads):
     # print("Processing bead: {index}".format(index=index))
     print("Processing beads: {nbeads}".format(nbeads=nbeads))
-    threshold = Threshold(Input=connectivity)
+    bead_threshold = Threshold(Input=connectivity)
     # threshold.ThresholdRange = [0, nbeads-1]
-    threshold.LowerThreshold = 0
-    threshold.UpperThreshold = nbeads-1
-    threshold.ThresholdMethod = vtkThreshold.THRESHOLD_BETWEEN
-    thresholdDisplay = Show(threshold, view)
-    ColorBy(thresholdDisplay, None)
+    bead_threshold.LowerThreshold = 0
+    bead_threshold.UpperThreshold = nbeads-1
+    bead_threshold.ThresholdMethod = vtkThreshold.THRESHOLD_BETWEEN
+    bead_threshold_display = Show(bead_threshold, view)
+    ColorBy(bead_threshold_display, None)
     # threshold.UpdatePipeline()
-    thresholdDisplay.AmbientColor = color_rgb
-    thresholdDisplay.DiffuseColor = color_rgb
-    thresholdDisplay.Representation = args.display_representation
+    bead_threshold_display.AmbientColor = color_rgb
+    bead_threshold_display.DiffuseColor = color_rgb
+    bead_threshold_display.Representation = args.display_representation
 
     # thresholdDisplay.AmbientColor = [2/255, 61/255, 107/255]
     # thresholdDisplay.DiffuseColor = [2/255, 61/255, 107/255]
 
     print("Processing Column.")
-    threshold = Threshold(Input=connectivity)
+    column_threshold = Threshold(Input=connectivity)
     # threshold.ThresholdRange = [nbeads, nbeads]
-    threshold.LowerThreshold = nbeads
-    threshold.UpperThreshold = nbeads
-    threshold.ThresholdMethod = vtkThreshold.THRESHOLD_BETWEEN
+    column_threshold.LowerThreshold = nbeads
+    column_threshold.UpperThreshold = nbeads
+    column_threshold.ThresholdMethod = vtkThreshold.THRESHOLD_BETWEEN
 
     outerShell = project(
-            threshold, 
-            {
-                'project': ['clip', 'Plane', 0.5, 'x']
-            })
+            column_threshold, 'clip', 'Plane', 0.5, 'x'
+            )
 
     outerShellDisplay = Show(outerShell, view)
     ColorBy(outerShellDisplay, None)
     # outerShell.UpdatePipeline()
     outerShellDisplay.Opacity = 0.5
     view.InteractionMode = '2D'
+
+    Show(bead_threshold, view)
 
     view_handler(args['view'], args['zoom'])
 

@@ -39,7 +39,7 @@ def velocity_divergence(reader, args):
     # spreadSheetView1.HiddenColumnLabels = ['Block Number', 'Points_Magnitude', 'Points', 'Point ID']
     # ExportView('output.csv', view=spreadSheetView1)
 
-    projection = project(grads, args)
+    projection = project(grads, *args.project)
     projection_datarange = projection.PointData.GetArray('Divergence').GetRange()
     print(f"Divergence Range after projection: {projection_datarange}")
 

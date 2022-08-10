@@ -23,7 +23,7 @@ def screenshot(object, args):
     view.OrientationAxesVisibility = args['show_axis']
     view.ViewSize = args['geometry']
 
-    projection = project(object, args)
+    projection = project(object, *args.project)
     pd = projection.PointData
 
     for scalar in args['scalars']:

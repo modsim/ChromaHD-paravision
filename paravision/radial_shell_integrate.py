@@ -24,7 +24,7 @@ def radial_shell_integrate(reader, args):
     timeArray = reader.TimestepValues
     nts = len(timeArray) or 1
 
-    projection = project(reader, args)
+    projection = project(reader, *args.project)
 
     ## Calc bounding box. Requires show
     view = GetActiveViewOrCreate('RenderView')

@@ -34,7 +34,7 @@ def animate(reader, args):
     #     timekeeper.Time = 0
 
     # projection = Projection(reader, projectionType)
-    projection = project(reader, args)
+    projection = project(reader, *args.project)
 
     view = GetActiveViewOrCreate('RenderView')
     projectionDisplay = Show(projection, view)

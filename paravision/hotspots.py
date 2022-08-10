@@ -34,7 +34,7 @@ def hotspots(object, args):
     view.OrientationAxesVisibility = args['show_axis']
     view.ViewSize = args['geometry']
 
-    projection = project(object, args)
+    projection = project(object, *args.project)
 
     display = Show(projection, view)
     view_handler(args['view'], args['zoom'])

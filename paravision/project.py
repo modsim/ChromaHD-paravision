@@ -2,12 +2,12 @@ from paraview.simple import *
 
 from paravision.utils import default_origin_normal, get_bounds
 
-def project(object, args):
+def project(object, projectionType, geometry, origin, normal):
 
-    projectionType = args['project'][0]
-    geometry = args['project'][1]
-    origin = args['project'][2]
-    normal = args['project'][3]
+    # projectionType = args['project'][0]
+    # geometry = args['project'][1]
+    # origin = args['project'][2]
+    # normal = args['project'][3]
 
     # projectionView = GetActiveViewOrCreate('RenderView')
     # display = Show(object, projectionView)

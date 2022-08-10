@@ -18,7 +18,7 @@ def saveprojection(object, args):
 
     view = GetActiveViewOrCreate('RenderView')
 
-    projection = project(object, args)
+    projection = project(object, *args.project)
 
     # integrated = integrate(projection, ['scalar_0'], normalize=None, timeArray=[])
     # print(integrated)
