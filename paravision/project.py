@@ -2,24 +2,12 @@ from paraview.simple import *
 
 from paravision.utils import default_origin_normal, get_bounds
 
-def project(object, projectionType, geometry, origin, normal):
+def project(object, projectionType=None, geometry=None, origin=None, normal=None):
 
-    # projectionType = args['project'][0]
-    # geometry = args['project'][1]
-    # origin = args['project'][2]
-    # normal = args['project'][3]
-
-    # projectionView = GetActiveViewOrCreate('RenderView')
-    # display = Show(object, projectionView)
-    # (xmin,xmax,ymin,ymax,zmin,zmax) = GetActiveSource().GetDataInformation().GetBounds()
-    # Hide(object, projectionView)
-    # center = [ (xmax+xmin)/2, (ymax+ymin)/2, (zmax+zmin)/2,]
-    # if not origin:
-    #     origin=center
-    # else:
+    if projectionType is None: 
+        return object
 
     projection = None
-
 
     if projectionType.lower() == 'clip':
         ## WARNING: Commented out code is buggy for some reason. Use geometry == 'twice'
