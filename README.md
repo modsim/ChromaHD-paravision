@@ -1,6 +1,6 @@
 # Paravision
 
-A rewrite of vis.py and paravis.py scripts into a more modular and reusable format. Documentation in source.
+A rewrite of vis.py and paravis.py scripts into a more modular and reusable format. Documentation in source. The plugins are currently _very_ horribly written, and everything is to be considered EXPERIMENTAL.
 
 # Dependencies
 - ParaView with MPI (preferrably headless)
@@ -24,16 +24,16 @@ Just run `nix-shell /path/to/shell.nix` to install dependencies (mainly paraview
 Examples: 
 ```
 # Calculate chromatogram (optional flag to resample flow data on conc mesh)
-pvrun --chromatogram <conc.pvtu> --flow <flow.pvtu> [--flow-resample] --type full
+pvrun chromatogram <conc.pvtu> --flow <flow.pvtu> [--flow-resample] --type full
 
 # Save a screenshot of the domain after projection for scalar_0
-pvrun --screenshot --project clip Plane 0.5 x -s scalar_0
+pvrun screenshot --project clip Plane 0.5 x -s scalar_0
 
 # In case of a parallel, pvbatch run
-pvrun -np 64 --volume-integral
+pvrun -np 64 volume-integral
 # The above command is equivalent to mpiexec -np 64 /path/to/volume-integral.py
 
-pvrun -np64 --column-snapshot <pvtu>
+pvrun -np64 column-snapshot <pvtu>
 ```
 
 # Design
@@ -58,16 +58,16 @@ This project was initially just written into one long script `vis.py` with globa
 Here plugin refers to the top-level scripts that perform some action.
 
 ## Top level actions
-- `--chromatogram`
-- `--animate`
-- `--screenshot`
-- `--column-snapshot`
-- `--column-snapshot_fast`
-- `--volume-integral`
-- `--bead-loading`
-- `--radial-shell-integrate`
-- `--mass-flux`
-- `--shell_chromatograms`
+- `chromatogram`
+- `animate`
+- `screenshot`
+- `column-snapshot`
+- `column-snapshot_fast`
+- `volume-integral`
+- `bead-loading`
+- `radial-shell-integrate`
+- `mass-flux`
+- `shell_chromatograms`
 
 ## Pipeline actions
 - project

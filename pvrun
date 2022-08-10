@@ -9,6 +9,7 @@ import importlib
 import subprocess
 import argparse
 from addict import Dict
+from pathlib import Path
 
 from rich import print, print_json
 
@@ -19,27 +20,8 @@ def parse_outer_args():
 
     ap = argparse.ArgumentParser()
 
-    g = ap.add_mutually_exclusive_group()
-    g.add_argument("-cg", "--chromatogram", action='store_true', help="Calculate chromatogram from given flat 2D surface of column. Requires --flow. See --shelltype.")
-    g.add_argument("--grm2d", nargs=2, type=int, help="Split into axial and radial sections and integrate scalars for fitting with 2D GRM. args: <ncol> <nrad>")
-    g.add_argument("--screenshot", action='store_true', help="Screenshot the given object")
-    g.add_argument("--bead-loading", action='store_true', help="Screenshot the given object")
-    g.add_argument("--radial-shell-integrate", action='store_true', help="Divide object radially and integrate. Choices indicate normalization method. See --nrad, --shelltype")
-    g.add_argument("--radial-shell-flux", action='store_true', help="Slice axially, divide radially and integrate, then average axially.")
-    g.add_argument("--radial-porosity", action='store_true', help="Calculate the radial porosity profile")
-    g.add_argument("--column-snapshot", action='store_true', help="Snapshot the column with a semi-transparent container")
-    g.add_argument("--column-snapshot-fast", action='store_true', help="Snapshot the column with a semi-transparent container")
-    g.add_argument("--volume-integral", action='store_true', help="Integrate over volume. Can use --normalize to calculate \"averages\"")
-    g.add_argument("--mass-flux", type=int, help="Calculate mass flux (or volume flux) at n slices")
-    g.add_argument("--animate", action='store_true', help="Create animation as series of pngs")
-    g.add_argument("--infogeneric", action='store_true', help="Dump mesh info for generic field meshes")
-    g.add_argument("--save-projection", action='store_true', help="Save a projection. Use --project" )
-    g.add_argument("--pipeline", nargs='+', help="Operations to be performed in pipe. NOT PARALLELIZED." )
-
-    g.add_argument("-p", "--plugin", help="Custom plugin script that calls paravision utilities" )
-
+    ap.add_argument('cmd', help='command')
     ap.add_argument("-np", "--nproc", type=int, default=1, help="Screenshot the given object")
-
     ap.add_argument("-lsm", "--load-scientific-colormaps", action='store_true', help="Load all the ScientificColourMaps7 presets into ParaView before starting.")
 
     args, unknown =  ap.parse_known_args()
@@ -90,45 +72,34 @@ def main():
     # argv_sub = sys.argv[1:]
     argv_sub = subargs
 
-    # TODO: https://stackoverflow.com/questions/27529610/call-function-based-on-argparse
+    plugin_map = {
+            'chromatogram'          : 'paravision.chromatogram',
+            'shell_chromatograms'   : 'paravision.shell_chromatograms',
+            'grm2d'                 : 'paravision.grm2d',
+            'radial_shell_integrate': 'paravision.radial_shell_integrate',
+            'column_snapshot'       : 'paravision.column_snapshot',
+            'column_snapshot_fast'  : 'paravision.column_snapshot_fast',
+            'volume_integral'       : 'paravision.volume_integral',
+            'bead_loading'          : 'paravision.bead_loading',
+            'mass_flux'             : 'paravision.mass_flux',
+            'animate'               : 'paravision.animate',
+            'screenshot'            : 'paravision.screenshot',
+            'save_projection'       : 'paravision.save_projection',
+            'infogeneric'           : 'paravision.infogeneric',
+            'radial_porosity'       : 'paravision.radial_porosity',
+            'radial_shell_flux'     : 'paravision.radial_shell_flux',
+            }
 
-    if args.chromatogram:
-        run_module("paravision.chromatogram", argv_sub, args.nproc)
-    elif args.shell_chromatograms:
-        run_module("paravision.shell_chromatograms", argv_sub, args.nproc)
-    elif args.grm2d:
-        run_module("paravision.grm2d", argv_sub, args.nproc)
-    elif args.radial_shell_integrate:
-        run_module("paravision.radial_shell_integrate", argv_sub, args.nproc)
-    elif args.column_snapshot:
-        run_module("paravision.column_snapshot", argv_sub, args.nproc)
-    elif args.column_snapshot_fast:
-        run_module("paravision.column_snapshot_fast", argv_sub, args.nproc)
-    elif args.volume_integral:
-        run_module("paravision.volume_integral", argv_sub, args.nproc)
-    elif args.bead_loading:
-        run_module("paravision.bead_loading", argv_sub, args.nproc)
-    elif args.mass_flux:
-        run_module("paravision.mass_flux", argv_sub, args.nproc)
-    elif args.animate:
-        run_module("paravision.animate", argv_sub, args.nproc)
-    elif args.screenshot:
-        run_module("paravision.screenshot", argv_sub, args.nproc)
-    elif args.save_projection:
-        run_module("paravision.save_projection", argv_sub, args.nproc)
-    elif args.infogeneric:
-        run_module("paravision.infogeneric", argv_sub, args.nproc)
-    elif args.radial_porosity:
-        run_module("paravision.radial_porosity", argv_sub, args.nproc)
-    elif args.radial_shell_flux: 
-        run_module("paravision.radial_shell_flux", argv_sub, args.nproc)
-    elif args.plugin: 
-        run_command(args.plugin, argv_sub, args.nproc)
-    elif args.pipeline:
+    if args.cmd.replace('-','_') in plugin_map: 
+        run_module(plugin_map[args.cmd.replace('-','_')], argv_sub, args.nproc)
+    elif Path(args.cmd).exists(): 
+        run_command(args.cmd, argv_sub, args.nproc)
+    elif args.cmd == 'pipeline': 
         ## NOTE: Pipeline operations below [EXPERIMENTAL]
         ## NOTE: Doesn't work in parallel!!
         ## The idea is to provide the sequence of operations on the commandline
         ##  and execute it here
+        # FIXME: I've changed the argument parsing a couple of times without updating this block
         from paravision.project import project
         from paravision.screenshot import screenshot
         supported_operations = {
@@ -142,6 +113,8 @@ def main():
 
         for operation in args.pipeline:
             object = supported_operations[operation](object, args)
+    else: 
+        raise ValueError(f'{args.cmd} is an invalid command. Please ensure that the order of commandline args is correct.')
 
 if __name__ == "__main__":
     main()
