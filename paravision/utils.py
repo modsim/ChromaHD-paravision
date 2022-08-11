@@ -162,7 +162,7 @@ def save_screenshot(object, view, scalar, args, filename:str='screenshot.png' ):
     Delete(display)
 
 
-def find_preset(name, score_cutoff=70):
+def find_preset(name, score_cutoff=70.0):
     """ Fuzzy find routine for presets. 
     Look in ScientificColourMaps7 if not found in ParaView and import
     Because the exact string for paraview preset colormap names is not easy to find
