@@ -17,7 +17,7 @@ from paravision.utils import read_files
 from paravision.utils import configure_scalar_bar
 from paravision.utils import create_threshold
 from paravision.utils import handle_coloring
-from paravision.project import project
+from paravision.project import projector
 
 from paravision import ConfigHandler
 import argparse
@@ -34,7 +34,7 @@ def hotspots(object, args):
     view.OrientationAxesVisibility = args['show_axis']
     view.ViewSize = args['geometry']
 
-    projection = project(object, *args.project)
+    projection = projector(object, *args.project)
 
     display = Show(projection, view)
     view_handler(args['view'], args['zoom'])

@@ -2,7 +2,7 @@ from paraview.simple import *
 
 from paravision.utils import csvWriter, read_files, get_bounds, get_volume
 from paravision.integrate import integrate
-from paravision.project import project
+from paravision.project import projector
 
 from paravision import ConfigHandler
 import argparse
@@ -16,7 +16,7 @@ def radial_porosity_profile(reader, nrad, shelltype, projectargs, output_prefix=
     nRegions = nrad
     shellType = shelltype
 
-    projection = project(reader, *projectargs)
+    projection = projector(reader, *projectargs)
 
     ## Calc bounding box. Requires show
     view = GetActiveViewOrCreate('RenderView')

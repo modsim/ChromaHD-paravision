@@ -2,7 +2,7 @@ from paraview.simple import *
 
 from paravision.utils import default_origin_normal, get_bounds
 
-def project(object, projectionType=None, geometry=None, origin=None, normal=None):
+def projector(object, projectionType=None, geometry=None, origin=None, normal=None):
 
     if projectionType is None: 
         return object

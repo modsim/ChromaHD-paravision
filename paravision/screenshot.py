@@ -3,7 +3,7 @@ from paravision.utils import view_handler
 from paravision.utils import read_files
 from paravision.utils import configure_scalar_bar
 from paravision.utils import find_preset
-from paravision.project import project
+from paravision.project import projector
 
 from paravision import ConfigHandler
 import argparse
@@ -23,7 +23,7 @@ def screenshot(object, args):
     view.OrientationAxesVisibility = args['show_axis']
     view.ViewSize = args['geometry']
 
-    projection = project(object, *args.project)
+    projection = projector(object, *args.project)
     pd = projection.PointData
 
     for scalar in args['scalars']:

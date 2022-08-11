@@ -1,6 +1,6 @@
 from paraview.simple import *
 from paravision.utils import read_files
-from paravision.project import project
+from paravision.project import projector
 from paravision.integrate import integrate
 
 from paravision import ConfigHandler
@@ -18,7 +18,7 @@ def saveprojection(object, args):
 
     view = GetActiveViewOrCreate('RenderView')
 
-    projection = project(object, *args.project)
+    projection = projector(object, *args.project)
 
     # integrated = integrate(projection, ['scalar_0'], normalize=None, timeArray=[])
     # print(integrated)

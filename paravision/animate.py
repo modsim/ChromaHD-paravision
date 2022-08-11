@@ -7,7 +7,7 @@ from paravision.utils import find_preset
 from rich import print, print_json
 
 from paravision.utils import parse_cmdline_args, read_files, view_handler
-from paravision.project import project
+from paravision.project import projector
 
 from paravision.defaults import DEFAULT_CONFIG
 
@@ -43,7 +43,7 @@ def animate(reader, **kwargs):
     #     timekeeper.Time = 0
 
     # projection = Projection(reader, projectionType)
-    projection = project(reader, *config.get('project', [None, None, None, None]))
+    projection = projector(reader, *config.get('project', [None, None, None, None]))
 
     view = GetActiveViewOrCreate('RenderView')
     projectionDisplay = Show(projection, view)

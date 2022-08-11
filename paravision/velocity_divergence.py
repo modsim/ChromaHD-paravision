@@ -1,6 +1,6 @@
 from paravision.utils import csvWriter, parse_cmdline_args, read_files
 from paravision.utils import view_handler
-from paravision.project import project
+from paravision.project import projector
 
 from paraview.simple import *
 
@@ -39,7 +39,7 @@ def velocity_divergence(reader, args):
     # spreadSheetView1.HiddenColumnLabels = ['Block Number', 'Points_Magnitude', 'Points', 'Point ID']
     # ExportView('output.csv', view=spreadSheetView1)
 
-    projection = project(grads, *args.project)
+    projection = projector(grads, *args.project)
     projection_datarange = projection.PointData.GetArray('Divergence').GetRange()
     print(f"Divergence Range after projection: {projection_datarange}")
 

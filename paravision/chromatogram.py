@@ -1,6 +1,6 @@
 from paravision.utils import csvWriter, read_files
 from paravision.integrate import integrate
-from paravision.project import project
+from paravision.project import projector
 
 from paraview.simple import *
 from paravision import ConfigHandler
@@ -57,8 +57,8 @@ def chromatogram(reader, args):
 
         args.project[0] = 'slice'
 
-        mass_slice = project(reader, *args.project)
-        flow_slice = project(flow, *args.project)
+        mass_slice = projector(reader, *args.project)
+        flow_slice = projector(flow, *args.project)
 
         get_shell_chromatograms(mass_slice, flow_slice, args, timeArray=timeArray)
 

@@ -2,7 +2,7 @@ from paraview.simple import *
 
 from paravision.utils import csvWriter, read_files, get_bounds
 from paravision.integrate import integrate
-from paravision.project import project
+from paravision.project import projector
 
 from paravision import ConfigHandler
 import argparse
@@ -22,7 +22,7 @@ def radial_shell_integrate(reader, nrad, shelltype, projectargs, normalize, scal
     timeArray = timeArray or reader.TimestepValues
     nts = len(timeArray) or 1
 
-    projection = project(reader, *projectargs)
+    projection = projector(reader, *projectargs)
 
     ## Calc bounding box. Requires show
     view = GetActiveViewOrCreate('RenderView')

@@ -2,7 +2,7 @@ from paraview.simple import *
 from vtk import vtkThreshold
 
 from paravision.utils import read_files, view_handler
-from paravision.project import project
+from paravision.project import projector
 
 from paravision import ConfigHandler
 import argparse
@@ -55,7 +55,7 @@ def column_snapshot(reader, args):
     column_threshold.UpperThreshold = nbeads
     column_threshold.ThresholdMethod = vtkThreshold.THRESHOLD_BETWEEN
 
-    outerShell = project(
+    outerShell = projector(
             column_threshold, 'clip', 'Plane', 0.5, 'x'
             )
 

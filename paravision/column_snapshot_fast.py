@@ -1,7 +1,7 @@
 from paraview.simple import *
 
 from paravision.utils import parse_cmdline_args, read_files, view_handler
-from paravision.project import project
+from paravision.project import projector
 
 def column_snapshot_fast(args):
 
@@ -36,7 +36,7 @@ def column_snapshot_fast(args):
     particlesDisplay.DiffuseColor = color_rgb
 
     print("Processing Column.")
-    outerShell = project( interstitial, 'clip', 'Plane', 0.5, 'x' )
+    outerShell = projector( interstitial, 'clip', 'Plane', 0.5, 'x' )
 
     outerShellDisplay = Show(outerShell, view)
     print(outerShellDisplay.ColorArrayName)
