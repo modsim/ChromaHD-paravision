@@ -1,0 +1,7 @@
+numpy>=1.21
+matplotlib>=3.4
+ruamel.yaml>=0.17
+addict==2.3
+rich>10.15
+GitPython
+fuzzywuzzy
