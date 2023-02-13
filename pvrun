@@ -88,6 +88,7 @@ def main():
             'infogeneric'           : 'paravision.infogeneric',
             'radial_porosity'       : 'paravision.radial_porosity',
             'radial_shell_flux'     : 'paravision.radial_shell_flux',
+            'hotspots' : 'paravision.hotspots',
             }
 
     if args.cmd.replace('-','_') in plugin_map: 
