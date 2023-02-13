@@ -374,6 +374,8 @@ def create_threshold(object, scalar, method, lower_threshold=0.0, upper_threshol
 # Would require heirarchical configuration. 
 def handle_coloring(object, display, scalar, args): 
 
+    args = Dict(args)
+
     if scalar == 'None':
         ColorBy(display, None)
     else:
