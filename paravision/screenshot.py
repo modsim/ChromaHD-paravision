@@ -53,6 +53,8 @@ def screenshot(object, **args):
         if scalar == 'None':
             display.ColorArrayName = ['POINTS', '']
             ColorBy(display, None)
+        elif scalar == 'CellEntityIds': 
+            ColorBy(display, ('CELLS', 'CellEntityIds'))
         else:
             ColorBy(display, ('POINTS', scalar))
 
