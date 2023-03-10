@@ -3,6 +3,7 @@ from paravision.utils import view_handler
 from paravision.utils import read_files
 from paravision.utils import configure_scalar_bar
 from paravision.utils import find_preset
+from paravision.utils import find_files
 from paravision.project import projector
 
 from paravision import ConfigHandler
@@ -10,6 +11,7 @@ import argparse
 from addict import Dict
 
 from rich import print, print_json
+from pathlib import Path
 
 from paravision.defaults import DEFAULT_CONFIG
 
@@ -67,6 +69,7 @@ def screenshot(object, **args):
 
         wLUT.ApplyPreset(find_preset(_colormap, _colormap_fuzzy_cutoff), True)
 
+        # TODO: use handle_coloring() instead
         if _color_range_method == 'auto': 
             display.RescaleTransferFunctionToDataRange(False, True)
         elif _color_range_method == 'startzero': 
@@ -121,15 +124,15 @@ if __name__=="__main__":
 
         if args['append_datasets']:
             appended = AppendDatasets(Input=readers)
-            screenshot(appended, args)
+            screenshot(appended, **args)
         else: 
-            print("ERROR: Screenshotting for pure --standalone not yet fully supported. Please use along with --append-datasets")
-
-            # If the next two lines are uncommented, it will work, but the
-            # screenshots will get overwritten because filenames aren't unique
-
-            # for ireader in readers: 
-            #     screenshot(ireader, args)
+            # Use input filenames in output using output_prefix
+            files, filetype = find_files(args['FILES'], args['filetype'])
+            print("FILES =", files)
+            _output_prefix         = args.get('output_prefix', DEFAULT_CONFIG.output_prefix)
+            for ind, ireader in enumerate(readers): 
+                args['output_prefix'] = f"{Path(files[ind]).stem.strip()}_{_output_prefix}"
+                screenshot(ireader, **args)
     else: 
         reader = read_files(args['FILES'], filetype=args['filetype'], standalone=args['standalone'])
         screenshot(reader, **args)
