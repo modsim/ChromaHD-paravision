@@ -50,9 +50,28 @@ def volume_integral_parser(args, local_args_list):
 
 
 if __name__=="__main__":
+
     config = ConfigHandler()
     args, local_args_list = config.parse_config_and_cmdline_args()
     args = volume_integral_parser(args, local_args_list)
 
-    reader = read_files(args['FILES'], filetype=args['filetype'])
-    volume_integral(reader, args)
+    print("[bold yellow]Final set of args:[/bold yellow]")
+    print_json(data=args)
+
+    if args['standalone']: 
+        readers = read_files(args['FILES'], filetype=args['filetype'], standalone=args['standalone'])
+
+        if args['append_datasets']:
+            appended = AppendDatasets(Input=readers)
+            volume_integral(appended, args)
+        else: 
+            # Use input filenames in output using output_prefix
+            files, filetype = find_files(args['FILES'], args['filetype'])
+            print("FILES =", files)
+            _output_prefix         = args.get('output_prefix', DEFAULT_CONFIG.output_prefix)
+            for ind, ireader in enumerate(readers): 
+                args['output_prefix'] = f"{Path(files[ind]).stem.strip()}_{_output_prefix}"
+                volume_integral(ireader, args)
+    else: 
+        reader = read_files(args['FILES'], filetype=args['filetype'], standalone=args['standalone'])
+        volume_integral(reader, args)
