@@ -170,9 +170,9 @@ def get_shell_chromatograms(mass, flow, args, timeArray):
         print(integrated_over_time)
 
         for region in range(nRegions):
-            csvWriter("shell_{i}.csv".format(i=region), timeArray, integrated_over_time[region])
+            csvWriter("chromatogram_{op}_shell_{i}.csv".format(op=args.output_prefix, i=region), timeArray, integrated_over_time[region])
 
-        csvWriter(f'flowrates_{nRegions}.csv', radAvg, flowrates)
+        csvWriter(f'flowrates_{nRegions}_{args.output_prefix}.csv', radAvg, flowrates)
 
 def chromatogram_parser(args, local_args_list):
 
