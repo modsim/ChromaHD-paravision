@@ -81,7 +81,7 @@ def screenshot(object, **args):
         elif _color_range_method == 'custom': 
             wLUT.RescaleTransferFunction(_custom_color_range[0], _custom_color_range[1])
 
-        configure_scalar_bar(wLUT, view, config.get('ColorBar'))
+        configure_scalar_bar(wLUT, view, args.get('ColorBar'))
 
         UpdateScalarBars()
         display.SetScalarBarVisibility(view, _show_scalar_bar)
