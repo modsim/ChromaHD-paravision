@@ -7,10 +7,13 @@ import csv
 import os
 import argparse
 from addict import Dict
+from rich import print, print_json
 
 from vtkmodules.numpy_interface import dataset_adapter as dsa
 
 from rich import print
+
+from paravision import ConfigHandler
 
 def appendToBin(arr, filename, f):
     with(open(filename, 'ab')) as output:
@@ -422,3 +425,44 @@ def handle_coloring(object, display, scalar, args):
         wLUT.RescaleTransferFunction(crange[0], args.custom_color_range[1])
 
     return wLUT, wPWF
+
+def script_main(local_parser, local_driver):
+    """ A wrapper function to make it easy to write individual scripts"""
+    config = ConfigHandler()
+    args, local_args_list = config.parse_config_and_cmdline_args()
+    args = local_parser(args, local_args_list)
+
+    print("[bold yellow]Final set of args:[/bold yellow]")
+    print_json(data=args)
+
+    if args['standalone']: 
+        readers = read_files(args['FILES'], filetype=args['filetype'], standalone=args['standalone'])
+
+        if args['append_datasets']:
+            appended = AppendDatasets(Input=readers)
+            local_driver(appended, **args)
+        else: 
+            # Use input filenames in output using output_prefix
+            files, filetype = find_files(args['FILES'], args['filetype'])
+            print("FILES =", files)
+            _output_prefix         = args.get('output_prefix', DEFAULT_CONFIG.output_prefix)
+            for ind, ireader in enumerate(readers): 
+                args['output_prefix'] = f"{Path(files[ind]).stem.strip()}_{_output_prefix}"
+                local_driver(ireader, **args)
+    else: 
+        reader = read_files(args['FILES'], filetype=args['filetype'], standalone=args['standalone'])
+        local_driver(reader, **args)
+
+def extract_surface_with_aligned_normal(object, normal_dir:str='Z', value:float=1.0):
+    assert normal_dir in 'xyzXYZ'
+    normal_dir = normal_dir.upper()
+
+    all_surfaces = ExtractSurface(Input=object)
+    all_normals = GenerateSurfaceNormals(Input=all_surfaces)
+    threshold = Threshold(Input=all_normals)
+
+    threshold.Scalars = ['POINTS', f'Normals_{normal_dir}']
+    threshold.LowerThreshold = value
+    threshold.UpperThreshold = value
+
+    return threshold
