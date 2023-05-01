@@ -2,6 +2,7 @@ from paraview.simple import *
 
 from paravision.utils import read_files, csvWriter
 from paravision.integrate import integrate
+from paravision.project import projector
 
 # TODO: Update this with --integrate?
 
@@ -17,14 +18,16 @@ def volume_integral(reader, args):
     """
     scalars = args['scalars'] or reader.PointArrayStatus
     output_prefix = args.get('output_prefix', DEFAULT_CONFIG.output_prefix)
+    _project               = args.get('project'               , DEFAULT_CONFIG.project) 
 
     # timeKeeper = GetTimeKeeper()
     # nts = len(reader.TimestepValues)
     timeArray = reader.TimestepValues
 
     view = GetActiveViewOrCreate('RenderView')
+    projection = projector(reader, *_project)
 
-    result = integrate(reader, scalars, normalize=args.normalize, timeArray=timeArray)
+    result = integrate(projection, scalars, normalize=args.normalize, timeArray=timeArray)
 
     print(result)
     for i,scalar in enumerate(scalars):
