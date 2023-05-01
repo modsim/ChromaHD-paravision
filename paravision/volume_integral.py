@@ -10,6 +10,7 @@ import argparse
 from addict import Dict
 
 from rich import print, print_json
+from paravision.defaults import DEFAULT_CONFIG
 
 def volume_integral(reader, args):
     """ Calculate the integral of a scalar over a volume
