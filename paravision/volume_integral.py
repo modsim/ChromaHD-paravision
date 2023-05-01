@@ -15,6 +15,7 @@ def volume_integral(reader, args):
     """ Calculate the integral of a scalar over a volume
     """
     scalars = args['scalars'] or reader.PointArrayStatus
+    output_prefix = args.get('output_prefix', DEFAULT_CONFIG.output_prefix)
 
     # timeKeeper = GetTimeKeeper()
     # nts = len(reader.TimestepValues)
@@ -26,7 +27,7 @@ def volume_integral(reader, args):
 
     print(result)
     for i,scalar in enumerate(scalars):
-        filename = scalar + '.integrated.csv'
+        filename = f"volume_integral_scalar_{i}_{output_prefix}.csv"
         print(f'Writing data to {filename}')
         csvWriter(filename, reader.TimestepValues, map(lambda x: x[i], result))
 
