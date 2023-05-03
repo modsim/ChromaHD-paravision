@@ -64,10 +64,18 @@ def default_origin_normal(reader, origin, normal):
     Hide(reader, view)
     Delete(display)
 
-    new_normal = direction_handler(normal)
-    origin_mask = [ xmin + float(origin) * (xmax - xmin), ymin + float(origin) * (ymax - ymin), zmin + float(origin) * (zmax - zmin)]
-    new_origin = [abs(x) * y for x,y in zip(new_normal, origin_mask)]
+    new_normal, value_format = direction_handler(normal)
+    print(f"VALUE_FORMAT: {value_format}")
+    if value_format == '%': 
+        origin_mask = [ xmin + float(origin) * (xmax - xmin), ymin + float(origin) * (ymax - ymin), zmin + float(origin) * (zmax - zmin)]
+        new_origin = [abs(x) * y for x,y in zip(new_normal, origin_mask)]
+    elif value_format == '#':
+        origin_mask = [float(origin)]*3
+        new_origin = [abs(x) * y for x,y in zip(new_normal, origin_mask)]
+    else:
+        raise ValueError
 
+    print(new_origin)
     return new_origin, new_normal
 
 def get_bounds(reader): 
@@ -78,12 +86,21 @@ def get_bounds(reader):
     Hide(reader, view)
     return bounds
 
+# WARNING: stuck with stupid defaults due to backward compatibility. Feel free to break it when you need to update.
 def direction_handler(dir:str):
     """
     Convert from "+x" notation to [1, 0, 0] notation
+
+    Full input spec: [+,-][x,y,z][%,#]
+    Examples: +x% , -z#
+
+    The symbols % and # are used to describe whether the the accompanying input
+    values in `default_origin_normal` are in percentages of the bounding box or
+    full coordinate values.
     """
     dir = dir.strip()
-    if len(dir) == 1:
+
+    if dir[0] not in ['-', '+']:
         dir = "+".join(["", dir])
 
     if dir[1] == "x":
@@ -100,14 +117,20 @@ def direction_handler(dir:str):
     elif dir[0] != "+":
         raise(ValueError)
 
-    return target
+    if len(dir) == 3: 
+        assert dir[2] in ['%', '#']
+        value_format = dir[2]
+    else:
+        value_format = '%'
+
+    return target, value_format
 
 def view_handler(viewopts:list, zoom:float):
     """
     Set camera view to viewopts ["+x", "-y"]  and zoom
     """
-    target = direction_handler(viewopts[0])
-    viewup = direction_handler(viewopts[1])
+    target, _ = direction_handler(viewopts[0])
+    viewup, _ = direction_handler(viewopts[1])
 
     print("Target:", target)
     print("viewup:", viewup)
