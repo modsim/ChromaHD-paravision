@@ -31,7 +31,10 @@ def projector(object, projectionType=None, geometry=None, origin=None, normal=No
         #     projection.ClipType.Length = length
         #
         if geometry == 'twice': 
-            origin, dest = origin.split('-')
+            if '/' in origin:
+                origin, dest = origin.split('/')
+            else:
+                origin, dest = origin.split('-')
 
             pos1, norm1 = default_origin_normal(object, origin, normal)
             intermediate = Clip(Input=object)
