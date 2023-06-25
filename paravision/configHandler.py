@@ -102,7 +102,7 @@ class ConfigHandler:
 
         ap.add_argument("-cm", "--colormap", help="Use specified colormap. Fuzzy searches within paraview and then ScientificColourMaps7. See -cfc.")
         ap.add_argument("-cfc", "--colormap-fuzzy-cutoff", type=int, help="Fuzziness cutoff score for colormap names. 100 implies exact match.")
-        ap.add_argument("-crm", "--color-range-method", choices=['auto', 'startzero', 'midzero', 'custom'], help="Range method for the scalar bar (color transfer function)")
+        ap.add_argument("-crm", "--color-range-method", choices=['auto', 'startzero', 'midzero', 'custom', 'custom_bottom', 'custom_top'], help="Range method for the scalar bar (color transfer function)")
         ap.add_argument("-ccr", "--custom-color-range", nargs=2, type=float, help="Custom range for the scalar bar (color transfer function). Ensure -crm == custom")
 
         ap.add_argument("-clog", "--colors-logscale", action='store_true', default=None, help="Plot colors in log scale")
