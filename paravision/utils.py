@@ -373,11 +373,15 @@ def configure_scalar_bar(LUT, view, colorbar_config):
     """
 
     if not colorbar_config: 
+        print("No colorbar config provided...")
+        UpdateScalarBars()
         return
 
     ColorBar:Proxy = GetScalarBar(LUT, view)
     for prop in colorbar_config.keys():
         ColorBar.SetPropertyWithName(prop, colorbar_config[prop])
+
+    UpdateScalarBars()
 
 def create_threshold(object, scalar, method, lower_threshold=0.0, upper_threshold=0.0):
     methodChoices = ['Between', 'Below Lower Threshold', 'Above Upper Threshold']
