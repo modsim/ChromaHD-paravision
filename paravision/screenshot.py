@@ -92,6 +92,7 @@ def screenshot(object, **args):
         print(f'Saving screenshot to file: {screenshot_filename}')
         SaveScreenshot(screenshot_filename, view, ImageResolution=_geometry, TransparentBackground=1)
         Hide(display, view)
+    return projection
 
 def screenshot_parser(args, local_args_list):
 
