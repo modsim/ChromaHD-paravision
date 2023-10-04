@@ -157,4 +157,12 @@ class ConfigHandler:
 
         return args, unknown
 
+    def load_and_parse_args(self, parser):
+        configfile, argslist = self.get_config_file()
+        if configfile: 
+            self.read(configfile)
+        args = parser(argslist)
+        ## WARNING: Updates config if we have non-none values in args. Hence avoid defaults
+        self.config.update([ (k,v) for k,v in args.items() if v is not None])
+        return self.config
 
