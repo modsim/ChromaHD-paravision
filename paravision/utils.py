@@ -269,6 +269,7 @@ def find_files(files, filetype='pvtu'):
         filetype = fileExtensions.pop().replace('.', '')
 
     print("Reading files: ", files)
+    print("with filetype: ", filetype)
 
     return files, filetype
 
