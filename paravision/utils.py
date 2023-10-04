@@ -239,6 +239,7 @@ def read_files(files, filetype='pvtu', standalone=False):
     standalone: bool => if true, reads files individually instead of serially
     filetype: default filetype to read. If files is [], look for files of this extension in current dir.
     """
+    assert isinstance(files, list)
     files, filetype = find_files(files, filetype)
 
     if standalone:
