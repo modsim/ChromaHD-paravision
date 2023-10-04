@@ -330,7 +330,7 @@ def parse_cmdline_args():
     ap.add_argument("-sa", "--show-axis", action='store_true', help="Show coordinate axis")
     ap.add_argument("-sb", "--show-scalar-bar", action='store_true', help="Show scalar color bar")
     ap.add_argument("-dr", "--display-representation", default='Surface', choices=['Surface', 'Surface With Edges', 'Points'],  help="Show Surface, Surface With Edges, etc")
-    ap.add_argument("-crm", "--color-range-method", choices=['auto', 'startzero', 'midzero', 'custom'], default='auto', help="Range method for the scalar bar (color transfer function)")
+    ap.add_argument("-crm", "--color-range-method", choices=['auto', 'startzero', 'midzero', 'custom', 'custom_bottom', 'custom_top'], default='auto', help="Range method for the scalar bar (color transfer function)")
     ap.add_argument("-ccr", "--custom-color-range", nargs=2, type=float, help="Custom range for the scalar bar (color transfer function). Ensure -crm == custom")
 
 
