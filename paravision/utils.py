@@ -409,7 +409,10 @@ def handle_coloring(object, display, scalar, args):
     args = Dict(args)
 
     if scalar == 'None':
+        display.ColorArrayName = ['POINTS', '']
         ColorBy(display, None)
+    elif scalar == 'CellEntityIds': 
+        ColorBy(display, ('CELLS', 'CellEntityIds'))
     else:
         ColorBy(display, ('POINTS', scalar))
 
