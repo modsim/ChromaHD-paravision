@@ -460,23 +460,26 @@ def script_main(local_parser, local_driver):
     print("[bold yellow]Final set of args:[/bold yellow]")
     print_json(data=args)
 
+    read_and_execute(args, local_driver)
+
+def read_and_execute(args, driver):
     if args['standalone']: 
         readers = read_files(args['FILES'], filetype=args['filetype'], standalone=args['standalone'])
 
         if args['append_datasets']:
             appended = AppendDatasets(Input=readers)
-            local_driver(appended, **args)
+            driver(appended, **args)
         else: 
             # Use input filenames in output using output_prefix
             files, filetype = find_files(args['FILES'], args['filetype'])
             print("FILES =", files)
-            _output_prefix         = args.get('output_prefix', DEFAULT_CONFIG.output_prefix)
+            _output_prefix = args.output_prefix
             for ind, ireader in enumerate(readers): 
                 args['output_prefix'] = f"{Path(files[ind]).stem.strip()}_{_output_prefix}"
-                local_driver(ireader, **args)
+                driver(ireader, **args)
     else: 
         reader = read_files(args['FILES'], filetype=args['filetype'], standalone=args['standalone'])
-        local_driver(reader, **args)
+        driver(reader, **args)
 
 def extract_surface_with_aligned_normal(object, normal_dir:str='Z', value:float=1.0):
     assert normal_dir in 'xyzXYZ'
