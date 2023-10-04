@@ -458,6 +458,16 @@ def handle_coloring(object, display, scalar, args):
 
     return wLUT, wPWF
 
+def script_main_new(parser, driver):
+    """ A wrapper function to make it easy to write individual scripts"""
+    config = ConfigHandler()
+    args = config.load_and_parse_args(parser)
+
+    print("[bold yellow]Final set of args:[/bold yellow]")
+    print_json(data=args)
+
+    read_and_execute(args, driver)
+
 def script_main(local_parser, local_driver):
     """ A wrapper function to make it easy to write individual scripts"""
     config = ConfigHandler()
@@ -501,3 +511,78 @@ def extract_surface_with_aligned_normal(object, normal_dir:str='Z', value:float=
     threshold.UpperThreshold = value
 
     return threshold
+
+def default_parser():
+    """
+    Copied from confighandler
+
+    NOTE: Make sure to set the default (especially bool types) to None.
+    This makes it easier to update the config with args, allowing to switch
+    bool flags on and off using cmdline
+
+    NOTE: Make sure that there are no positional args. Since we parse some
+    stuff later, unknowns may get mixed up with positionals.
+    """
+    ap = argparse.ArgumentParser()
+
+    ap.add_argument("-c","--config", help="YAML config file")
+
+    ap.add_argument("--integrate", choices=['Volume', 'Area', 'None'], help="Integrate and average the given Volume/Area")
+    ap.add_argument("--project", nargs=4, help="Projection. <clip|slice|none> <Plane|Cylinder..> <origin> <x|y|z>" )
+
+    ## TODO: Check feasibility of creating such a feature
+    # ap.add_argument("--radial-divide", help="Divide into radial sections??" )
+
+    ap.add_argument("-cm", "--colormap", help="Use specified colormap. Fuzzy searches within paraview and then ScientificColourMaps7. See -cfc.")
+    ap.add_argument("-cfc", "--colormap-fuzzy-cutoff", type=int, help="Fuzziness cutoff score for colormap names. 100 implies exact match.")
+    ap.add_argument("-crm", "--color-range-method", choices=['auto', 'startzero', 'midzero', 'custom', 'custom_bottom', 'custom_top'], help="Range method for the scalar bar (color transfer function)")
+    ap.add_argument("-ccr", "--custom-color-range", nargs=2, type=float, help="Custom range for the scalar bar (color transfer function). Ensure -crm == custom")
+
+    ap.add_argument("-clog", "--colors-logscale", action='store_true', default=None, help="Plot colors in log scale")
+    ap.add_argument("-omap", "--opacity-mapping", action='store_true', default=None, help="Object opacity by scalar value")
+    ap.add_argument("-olog", "--opacity-logscale", action='store_true', default=None, help="Object opacity in log scale")
+
+    ap.add_argument("-sa", "--show-axis", action=argparse.BooleanOptionalAction, default=None, help="Show coordinate axis")
+    ap.add_argument("-sb", "--show-scalar-bar", action=argparse.BooleanOptionalAction, default=None, help="Show scalar color bar")
+
+    ap.add_argument("-dr", "--display-representation", choices=['Surface', 'Surface With Edges', 'Points'],  help="Show Surface, Surface With Edges, etc")
+    ap.add_argument("-s", "--scalars" , nargs='*' , help="Scalars to consider. (Previously colorvars).")
+
+    ap.add_argument("-z", "--zoom", type=float, help="Zoom (camera.dolly) value for view")
+    ap.add_argument("-v", "--view", nargs=2, help="Set view: target, viewup. Use +x, -z notation.")
+    ap.add_argument("-g", "--geometry", nargs=2, type=int, help="Animation geometry size")
+
+    ap.add_argument("-o", "--output-prefix", help="prefix for output filenames")
+    ap.add_argument("-f", "--filetype", choices=['xdmf', 'vtu', 'vtk', 'pvtu', 'pvd'], help="filetype: xdmf | vtu | vtk | pvtu")
+
+    ap.add_argument("--standalone", action=argparse.BooleanOptionalAction, default=None, help="Read files as separate standalone objects, not part of time series.")
+    ap.add_argument("--append-datasets", action=argparse.BooleanOptionalAction, default=None, help="Use AppendDatasets on standalone files before processing.")
+
+    ap.add_argument("FILES", nargs='*', help="files..")
+
+    return ap
+
+def default_local_parser(argslist):
+    ap = default_parser()
+    args = Dict(vars(ap.parse_args(argslist)))
+    print_json(data=args)
+    return args
+
+def argcheck(obj, func=None, strict=False, msg=None):
+    if func is not None: 
+        result = func(obj)
+    else: 
+        result = obj
+
+    if result is None:
+        if strict:
+            raise AssertionError(msg)
+        else:
+            print(msg)
+
+## Some util functions are guaranteed to be passed args from within a driver function
+def get_view(args):
+    view = GetActiveViewOrCreate('RenderView')
+    view.OrientationAxesVisibility = args['show_axis']
+    view.ViewSize = args['geometry']
+    return view
