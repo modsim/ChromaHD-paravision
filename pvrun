@@ -89,7 +89,8 @@ def main():
             'radial_porosity'       : 'paravision.radial_porosity',
             'radial_shell_flux'     : 'paravision.radial_shell_flux',
             'hotspots'              : 'paravision.hotspots',
-            'screenshot_with_edges' : 'paravision.screenshot_with_edges'
+            'screenshot_with_edges' : 'paravision.screenshot_with_edges',
+            'plot_over_line'        : 'paravision.plot_over_line'
             }
 
     if args.cmd.replace('-','_') in plugin_map: 
