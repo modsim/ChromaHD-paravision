@@ -13,6 +13,7 @@ def mass_flux(reader, args):
 
     scalars = args['scalars'] or reader.PointArrayStatus
     nSlice = args['mass_flux'] or 1
+    output_prefix = args['output_prefix']
 
     view = GetActiveViewOrCreate('RenderView')
     display = Show(reader, view)
@@ -68,7 +69,7 @@ def mass_flux(reader, args):
 
     print(zs)
     print(flowrate)
-    csvWriter('massFlux.csv', zs, flowrate)
+    csvWriter(f'massFlux_{scalar}_{output_prefix}.csv', zs, flowrate)
     # plt.figure()
     # plt.plot(zs, flowrate)
     # plt.savefig('plot.pdf')
