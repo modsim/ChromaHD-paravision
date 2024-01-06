@@ -81,6 +81,7 @@ def driver(obj, **args):
 
 def local_parser(local_args_list):
 
+    ## Or use utils.default_parser()?
     ap = argparse.ArgumentParser()
 
     ap.add_argument("FILES", nargs='*', help="files..")
