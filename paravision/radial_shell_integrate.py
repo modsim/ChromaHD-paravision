@@ -1,28 +1,32 @@
-from paraview.simple import *
 
-from paravision.utils import csvWriter, read_files, get_bounds
+from paraview.simple import *
+from paravision import ConfigHandler
 from paravision.integrate import integrate
 from paravision.project import projector
+from paravision.utils import csvWriter, read_files, get_bounds, script_main_new, default_parser
+from paravision.defaults import DEFAULT_CONFIG
 
-from paravision import ConfigHandler
-import argparse
 from addict import Dict
-
-from rich import print, print_json
-
 from math import sqrt
+from rich import print, print_json
+import argparse
+import numpy as np
+import csv
 
-def radial_shell_integrate(reader, nrad, shelltype, projectargs, normalize, scalars=None, output_prefix=None, timeArray=[]):
+def radial_shell_integrate(reader, **args):
 
-    scalars = scalars or reader.PointArrayStatus
-    nRegions = nrad
-    shellType = shelltype
+    scalars = args.get('scalars') or reader.PointArrayStatus
+    nRegions = args.get('nrad', 1)
+    shellType = args.get('shelltype', 'EQUIDISTANT')
+    normalize = args.get('normalize', DEFAULT_CONFIG.normalize)
+    output_prefix = args.get('output_prefix', DEFAULT_CONFIG.output_prefix)
+    _project = args.get('project', DEFAULT_CONFIG.project) 
 
     timeKeeper = GetTimeKeeper()
-    timeArray = timeArray or reader.TimestepValues
+    timeArray = reader.TimestepValues
     nts = len(timeArray) or 1
 
-    projection = projector(reader, *projectargs)
+    projection = projector(reader, *_project)
 
     ## Calc bounding box. Requires show
     view = GetActiveViewOrCreate('RenderView')
@@ -41,6 +45,7 @@ def radial_shell_integrate(reader, nrad, shelltype, projectargs, normalize, scal
 
     R = (xmax - xmin + ymax - ymin)/4
     print("R:", R)
+    print("zdelta:", zmax - zmin)
 
     if shellType == 'EQUIVOLUME':
         for n in range(nShells):
@@ -90,50 +95,41 @@ def radial_shell_integrate(reader, nrad, shelltype, projectargs, normalize, scal
             Delete(clipInner)
             Delete(clipOuter)
 
-            print(values)
             appended.append(values)
-
-            print("Average scalar by radius:", appended)
-
         final.append(appended)
 
+    final = np.array(final) * args.get('scale', 1.0)
+
+    if args.get('divide_by_length', None):
+        final = final / (zmax - zmin)
 
     if nts == 1: 
         for i, scalar in enumerate(scalars):
             csvWriter(f'radial_shell_integrate_{scalar}_{nRegions}_{output_prefix}.csv', radAvg, map(lambda x: x[i], final[0]))
     else: 
+        # We have the shape of final as (nts, nrad, nscalar). Here we reshape it to the way cadet shapes arrays. This can be used as a "meta objective" in chromoo, so that we don't have to define every radial zone individually in the chromoo config.
+        final_reshaped_as_cadet = np.moveaxis(final, 2, 0)
+        for i, scalar in enumerate(scalars): 
+            np.savetxt(f'serialized_radial_shell_integrate_time_{scalar}_{output_prefix}.dat', np.reshape(final_reshaped_as_cadet[i], (-1,)))
         for rad in range(nRegions): 
             for i, scalar in enumerate(scalars): 
                 csvWriter(f'radial_shell_integrate_time_{scalar}_{rad}_{output_prefix}.csv', timeArray, map(lambda x: x[rad][i], final))
 
-def radial_shell_integrate_parser(args, local_args_list):
-    ap = argparse.ArgumentParser()
-
-    ap.add_argument("-nr", "--nrad", type=int, help="Radial discretization size for shell chromatograms. Also see --shelltype")
-    ap.add_argument("-st", "--shelltype", choices = ['EQUIDISTANT', 'EQUIVOLUME'], help="Radial shell discretization type. See --nrad")
-    ap.add_argument("-n", "--normalize", choices = ['NoNorm', 'Volume', 'Area'], help="Normalization for integration. Divides integrated result by Volume or Area")
+def radial_shell_integrate_parser(local_args_list):
+    ap = default_parser()
 
     ap.add_argument("FILES", nargs='*', help="files..")
+    ap.add_argument("-nr", "--nrad", type=int, help="Radial discretization size for shell chromatograms. Also see --shelltype")
+    ap.add_argument("-st", "--shelltype", choices = ['EQUIDISTANT', 'EQUIVOLUME'], help="Radial shell discretization type. See --nrad")
+    ap.add_argument("-n", "--normalize", default='NoNorm', choices = ['NoNorm', 'Volume', 'Area'], help="Normalization for integration. Divides integrated result by Volume or Area")
+    ap.add_argument("--scale", type=float, default=1.0, help="Scale factor applied after integration.")
+    ap.add_argument("--divide-by-length", action="store_true", help="Divide result by object length in z-direction. To calculate average flux in z-dir.")
 
     print(local_args_list)
-
-    local_args = ap.parse_args(local_args_list)
-    local_args = Dict(vars(local_args))
-
-    print_json(data=local_args)
-
-    args.update([ (k,v) for k,v in local_args.items() if v is not None])
-
+    args = ap.parse_args(local_args_list)
+    args = Dict(vars(args))
+    print_json(data=args)
     return args
 
-
 if __name__=="__main__":
-    config = ConfigHandler()
-    args, local_args_list = config.parse_config_and_cmdline_args()
-    args = radial_shell_integrate_parser(args, local_args_list)
-
-    print("[bold yellow]Final set of args:[/bold yellow]")
-    print_json(data=args)
-
-    reader = read_files(args['FILES'], filetype=args['filetype'])
-    radial_shell_integrate(reader, args.nrad, args.shelltype, args.project, args.normalize, args.scalars, args.output_prefix)
+    script_main_new(radial_shell_integrate_parser, radial_shell_integrate)
