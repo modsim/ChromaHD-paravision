@@ -90,7 +90,8 @@ def main():
             'radial_shell_flux'     : 'paravision.radial_shell_flux',
             'hotspots'              : 'paravision.hotspots',
             'screenshot_with_edges' : 'paravision.screenshot_with_edges',
-            'plot_over_line'        : 'paravision.plot_over_line'
+            'plot_over_line'        : 'paravision.plot_over_line',
+            'chromoo'               : 'paravision.chromoo'
             }
 
     if args.cmd.replace('-','_') in plugin_map: 
