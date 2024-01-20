@@ -26,6 +26,9 @@ def radial_shell_integrate(reader, **args):
     timeArray = reader.TimestepValues
     nts = len(timeArray) or 1
 
+    print(f"{timeArray = }")
+    print(f"{nts = }")
+
     projection = projector(reader, *_project)
 
     ## Calc bounding box. Requires show
@@ -67,6 +70,7 @@ def radial_shell_integrate(reader, **args):
             timeKeeper.Time = timestep
             projection.UpdatePipeline(timeArray[timestep])
         except IndexError: 
+            print(f"INDEX ERROR WITH TIMESTEP: {timestep}. Ignore this if we only have 1 timestep.")
             pass
 
         print("its:", timestep)
