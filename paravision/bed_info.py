@@ -19,6 +19,7 @@ from paraview.simple import *
 from paravision.utils import script_main_new, default_parser, create_threshold, get_bounds
 
 import numpy as np
+import json
 
 def csvWriter(filename, x, y):
     with open(filename, 'w') as f:
@@ -143,6 +144,26 @@ class PackedBed:
             bead.x = bead.x + offsetx
             bead.y = bead.y + offsety
         self.updateBounds()
+
+    def get_bounds(self): 
+        self.updateBounds()
+        return {
+                'xmin': self.xmin,
+                'xmax': self.xmax,
+                'ymin': self.ymin,
+                'ymax': self.ymax,
+                'zmin': self.zmin,
+                'zmax': self.zmax,
+                'rmin': self.rmin,
+                'rmax': self.rmax,
+                'xdelta': self.xmax - self.xmin,
+                'ydelta': self.ymax - self.ymin,
+                'zdelta': self.zmax - self.zmin,
+                'ravg': self.ravg,
+                'R': self.R,
+                'h': self.h,
+                'volume': self.volume(),
+                }
 
 def volShellRegion(beads, rShells, i):
     """
@@ -322,9 +343,6 @@ def plotter(x, y, title, filename):
 def driver(obj, **args):
     args = Dict(args)
 
-    full_bounds = Bounds(*get_bounds(obj))
-    pprint(vars(full_bounds))
-
     surfaces = ExtractSurface(obj)
     connectivity = Connectivity(surfaces)
     conn_data = servermanager.Fetch(connectivity)
@@ -349,23 +367,40 @@ def driver(obj, **args):
             d = np.max([b.dx, b.dy, b.dz])
             fullBed.add(Bead(b.xc, b.yc, b.zc, d/2))
             # xyzr.append((b.xc, b.yc, b.zc, b.dx/2 ))
+        else:
+            print(f"FOUND NON-SPHERICAL OBJECT WITH BOUNDS: {vars(b)}")
         Delete(threshold)
 
     print(f"Processed {fullBed.size()}/{nParticles} spherical particles.")
 
     column_length = None
+    column_bounds = None
     if fullBed.size() != nParticles:
         column_bounds = Bounds(*get_bounds(obj))
         column_length = column_bounds.dz
         print(f"Assuming an interstitial mesh is provided, column_length = {column_length}")
+        print(vars(column_bounds))
+        with open('column_bounds.json', 'w') as fp:
+            json.dump(vars(column_bounds), fp, indent=4)
 
-    fullBed.updateBounds()
+    bed_bounds = fullBed.get_bounds()
 
-    # meshScalingFactor = 1e-4 # see genmesh/pymesh
-    # rCylDelta = 0.01*meshScalingFactor
-    # R = fullBed.R + rCylDelta ## Adding Rcyldelta
+    print("\n==== BED BOUNDS ====")
+    print(bed_bounds)
+    print("====================\n")
 
-    R = args['column_radius']
+    with open('bed_bounds.json', 'w') as fp:
+        json.dump(bed_bounds, fp, indent=4)
+
+    if args['column_radius']:
+        R = args['column_radius']
+    elif column_bounds: 
+        R = (column_bounds.dx + column_bounds.dy) / 4
+    else:
+        meshScalingFactor = 1e-4 # see genmesh/pymesh
+        rCylDelta = 0.01*meshScalingFactor
+        R = fullBed.R + rCylDelta ## Adding Rcyldelta
+
     hBed = fullBed.h
 
     filename = 'xyzr.csv'
@@ -449,7 +484,7 @@ def driver(obj, **args):
         print("\n--- Radial Porosity Distribution in FULL COLUMN ---")
         print("col_porosity:\n", porosities_column)
         print("---\n")
-        csvWriter(args['output_prefix'] + '_colpor_rad.csv', avg_shell_radii, porosities_column)
+        csvWriter(str(args['output_prefix']) + '_colpor_rad.csv', avg_shell_radii, porosities_column)
 
     Delete(connectivity)
     Delete(surfaces)
@@ -459,7 +494,7 @@ def parser(argslist):
     ap.add_argument("--nrad", type=int, default=1, help="NRAD, number of radial shells in 2D model")
     ap.add_argument("--npartype", type=int, default=1, help="NPARTYPE, number of bins to sort particles by size")
     ap.add_argument("-st"  , "--shelltype", choices = ['EQUIDISTANT', 'EQUIVOLUME'], default='EQUIDISTANT', help="Shell discretization type")
-    ap.add_argument("-R"  , "--column-radius", type=float, required=True, help="Column radius")
+    ap.add_argument("-R"  , "--column-radius", type=float, help="Column radius")
     args = Dict(vars(ap.parse_args(argslist)))
     print_json(data=args)
     return args
