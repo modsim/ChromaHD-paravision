@@ -7,6 +7,13 @@ from paravision.radial_shell_integrate import radial_shell_integrate
 from rich import print, print_json
 from addict import Dict
 
+# # Script to make life a little easier when processing data for use in chromoo
+# # Put the following commands into a file and run it with jrunw
+# pvrun -np 48 chromoo --nrad 10 --flow ../FLOW/sim/output/flow_0.pvtu -o sim
+# pvrun -np 48 chromoo --nrad 10 --bulkc ./bulk_c/*.pvtu -o sim
+# pvrun -np 48 chromoo --nrad 10 --bedc ./bed_c/*.pvtu -o sim
+# pvrun -np 48 chromoo --nrad 10 --bedq ./bed_q/*.pvtu -o sim
+
 def local_parser(argslist):
     ap = default_parser()
 
