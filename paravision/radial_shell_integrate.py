@@ -63,8 +63,20 @@ def radial_shell_integrate(reader, **args):
     for radIn, radOut in zip(rShells[:-1], rShells[1:]+rShells[:0]):
         radAvg.append( (radIn + radOut) / 2 )
 
-    final = []
+    values_all = []
+    if args.get('load_checkpoint', False):
+        if args.get('checkpoint_file', None):
+            values_all, = np.load(args.get('checkpoint_file'), allow_pickle=True).tolist()
+            print(f"Loaded {args.get('checkpoint_file')}")
+            print(values_all)
+        else:
+            raise ValueError("No checkpoint file specified!")
+
     for timestep in range(nts):
+        if timestep < len(values_all):
+            ## skip until the end. Useful when checkpointing
+            print(f"Skipping timestep {timestep}...")
+            continue
 
         try: 
             timeKeeper.Time = timestep
@@ -73,15 +85,13 @@ def radial_shell_integrate(reader, **args):
             print(f"INDEX ERROR WITH TIMESTEP: {timestep}. Ignore this if we only have 1 timestep.")
             pass
 
+        print("===============")
         print("its:", timestep)
 
-        appended = []
+        values_radial_zone = []
         # radAvg = []
 
         for radIn, radOut in zip(rShells[:-1], rShells[1:]+rShells[:0]):
-
-            # radAvg.append( (radIn + radOut) / 2 )
-
             clipOuter = Clip(Input=projection)
             clipOuter.ClipType = 'Cylinder'
             clipOuter.ClipType.Axis = [0.0, 0.0, 1.0]
@@ -94,30 +104,33 @@ def radial_shell_integrate(reader, **args):
             clipInner.ClipType.Radius = radIn
             clipInner.Invert = 0
 
-            values = integrate(clipInner, scalars, normalize=normalize)[0]
+            values_scalars = integrate(clipInner, scalars, normalize=normalize)[0]
 
             Delete(clipInner)
             Delete(clipOuter)
 
-            appended.append(values)
-        final.append(appended)
+            values_radial_zone.append(values_scalars)
 
-    final = np.array(final) * args.get('scale', 1.0)
+        if args.get('checkpoint_file'):
+            np.save(args.get('checkpoint_file'), values_all)
+        values_all.append(values_radial_zone)
+
+    values_all = np.array(values_all) * args.get('scale', 1.0)
 
     if args.get('divide_by_length', None):
-        final = final / (zmax - zmin)
+        values_all = values_all / (zmax - zmin)
 
     if nts == 1: 
         for i, scalar in enumerate(scalars):
-            csvWriter(f'radial_shell_integrate_{scalar}_{nRegions}_{output_prefix}.csv', radAvg, map(lambda x: x[i], final[0]))
+            csvWriter(f'radial_shell_integrate_{scalar}_{nRegions}_{output_prefix}.csv', radAvg, map(lambda x: x[i], values_all[0]))
     else: 
         # We have the shape of final as (nts, nrad, nscalar). Here we reshape it to the way cadet shapes arrays. This can be used as a "meta objective" in chromoo, so that we don't have to define every radial zone individually in the chromoo config.
-        final_reshaped_as_cadet = np.moveaxis(final, 2, 0)
+        final_reshaped_as_cadet = np.moveaxis(values_all, 2, 0)
         for i, scalar in enumerate(scalars): 
             np.savetxt(f'serialized_radial_shell_integrate_time_{scalar}_{output_prefix}.dat', np.reshape(final_reshaped_as_cadet[i], (-1,)))
         for rad in range(nRegions): 
             for i, scalar in enumerate(scalars): 
-                csvWriter(f'radial_shell_integrate_time_{scalar}_{rad}_{output_prefix}.csv', timeArray, map(lambda x: x[rad][i], final))
+                csvWriter(f'radial_shell_integrate_time_{scalar}_{rad}_{output_prefix}.csv', timeArray, map(lambda x: x[rad][i], values_all))
 
 def radial_shell_integrate_parser(local_args_list):
     ap = default_parser()
@@ -128,6 +141,8 @@ def radial_shell_integrate_parser(local_args_list):
     ap.add_argument("-n", "--normalize", default='NoNorm', choices = ['NoNorm', 'Volume', 'Area'], help="Normalization for integration. Divides integrated result by Volume or Area")
     ap.add_argument("--scale", type=float, default=1.0, help="Scale factor applied after integration.")
     ap.add_argument("--divide-by-length", action="store_true", help="Divide result by object length in z-direction. To calculate average flux in z-dir.")
+    ap.add_argument("--checkpoint-file", help="checkpoint file to load from. (Stores current state)")
+    ap.add_argument("--load-checkpoint", action="store_true", help="Load checkpoint from file. See --checkpoint-file")
 
     print(local_args_list)
     args = ap.parse_args(local_args_list)
