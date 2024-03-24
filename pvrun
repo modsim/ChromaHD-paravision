@@ -91,7 +91,8 @@ def main():
             'hotspots'              : 'paravision.hotspots',
             'screenshot_with_edges' : 'paravision.screenshot_with_edges',
             'plot_over_line'        : 'paravision.plot_over_line',
-            'chromoo'               : 'paravision.chromoo'
+            'chromoo'               : 'paravision.chromoo',
+            'mesh_info'             : 'paravision.mesh_info'
             }
 
     if args.cmd.replace('-','_') in plugin_map: 
