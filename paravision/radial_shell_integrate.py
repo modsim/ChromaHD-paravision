@@ -122,7 +122,7 @@ def radial_shell_integrate(reader, **args):
 def radial_shell_integrate_parser(local_args_list):
     ap = default_parser()
 
-    ap.add_argument("FILES", nargs='*', help="files..")
+    # ap.add_argument("FILES", nargs='*', help="files..") # Adding this would mask the default 'FILES' arg and always trigger reading all files in the dir.
     ap.add_argument("-nr", "--nrad", type=int, help="Radial discretization size for shell chromatograms. Also see --shelltype")
     ap.add_argument("-st", "--shelltype", choices = ['EQUIDISTANT', 'EQUIVOLUME'], help="Radial shell discretization type. See --nrad")
     ap.add_argument("-n", "--normalize", default='NoNorm', choices = ['NoNorm', 'Volume', 'Area'], help="Normalization for integration. Divides integrated result by Volume or Area")
